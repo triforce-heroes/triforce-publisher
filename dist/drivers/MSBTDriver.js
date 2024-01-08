@@ -1,0 +1,1 @@
+import{readFileSync as r}from"node:fs";import{transpile as e}from"@triforce-heroes/triforce-msbt";import{Driver as o}from"./Driver.js";export const MSBTDriver=new class extends o{constructor(){super("msbt","*.msbt")}resourceEntries(o){return e(r(o)).map(([r,e])=>({resource:o.slice(0,-5),reference:r,source:e}))}};
