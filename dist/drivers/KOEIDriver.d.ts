@@ -1,10 +1,11 @@
 /// <reference types="node" resolution-mode="require"/>
 import { DataEntryRaw } from "../types/DataEntryRaw.js";
-export declare const MSBTDriver: {
-    resourceEntries(resource: string): DataEntryRaw[];
+export declare const KOEIDriver: {
+    validate(resource: Buffer): boolean;
+    resourceEntries(path: string, resource: Buffer): DataEntryRaw[];
+    reassignLocales(entries: DataEntryRaw[]): Record<string, DataEntryRaw[]>;
     readonly name: string;
     readonly pattern: string;
-    validate(_resource: Buffer): boolean;
     entries(filesMatcher: string, engineDriver: import("@triforce-heroes/triforce-commands").Driver): Promise<{
         sourceIndex: string;
         resource: string;
@@ -12,5 +13,4 @@ export declare const MSBTDriver: {
         context?: string | undefined;
         source: string;
     }[]>;
-    reassignLocales(entries: DataEntryRaw[]): Record<string, DataEntryRaw[]>;
 };

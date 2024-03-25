@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 
 import { transpile } from "@triforce-heroes/triforce-msbt";
 
-import { DataEntry } from "../types/DataEntry.js";
+import { DataEntryRaw } from "../types/DataEntryRaw.js";
 
 import { Driver } from "./Driver.js";
 
@@ -12,9 +12,7 @@ export const MSBTDriver = new (class extends Driver {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  public resourceEntries(
-    resource: string,
-  ): Array<Omit<DataEntry, "sourceIndex">> {
+  public resourceEntries(resource: string): DataEntryRaw[] {
     return transpile(readFileSync(resource)).map(([reference, source]) => ({
       resource: resource.slice(0, -5),
       reference,

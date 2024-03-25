@@ -6,5 +6,7 @@ export interface DataEntryPublishable {
   sourceIndex?: string;
   translationIndex?: string;
   sources: Record<string, string>;
-  translations: Record<string, string>;
+  translations?: Record<string, string>;
+  same?: number;
+  sameSources?: number;
 }

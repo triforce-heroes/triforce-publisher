@@ -8,7 +8,7 @@ export function printProgress(
   lastCase?: DataEntryTranslationProgress,
 ) {
   const percentual = chalk.bold(`(${((100 / total) * current).toFixed(2)}%)`);
-  const percentualMessage = `- ${percentual} ${current} of ${total}:\n`;
+  const percentualMessage = `- ${percentual} ${String(current)} of ${String(total)}:\n`;
 
   process.stdout.write(percentualMessage);
 

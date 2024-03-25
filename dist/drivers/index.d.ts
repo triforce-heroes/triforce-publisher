@@ -1,15 +1,32 @@
+/// <reference types="node" resolution-mode="require"/>
 import { Driver as CommandsDriver } from "@triforce-heroes/triforce-commands";
 import { Driver } from "./Driver.js";
 export declare const supportedSourceDrivers: {
     msbt: {
-        resourceEntries(resource: string): Omit<import("../types/DataEntry.js").DataEntry, "sourceIndex">[];
+        resourceEntries(resource: string): import("../types/DataEntryRaw.js").DataEntryRaw[];
+        readonly name: string;
+        readonly pattern: string;
+        validate(_resource: Buffer): boolean;
+        entries(filesMatcher: string, engineDriver: CommandsDriver): Promise<{
+            sourceIndex: string;
+            resource: string;
+            reference: string;
+            context?: string | undefined;
+            source: string;
+        }[]>;
+        reassignLocales(entries: import("../types/DataEntryRaw.js").DataEntryRaw[]): Record<string, import("../types/DataEntryRaw.js").DataEntryRaw[]>;
+    };
+    koei: {
+        validate(resource: Buffer): boolean;
+        resourceEntries(path: string, resource: Buffer): import("../types/DataEntryRaw.js").DataEntryRaw[];
+        reassignLocales(entries: import("../types/DataEntryRaw.js").DataEntryRaw[]): Record<string, import("../types/DataEntryRaw.js").DataEntryRaw[]>;
         readonly name: string;
         readonly pattern: string;
         entries(filesMatcher: string, engineDriver: CommandsDriver): Promise<{
             sourceIndex: string;
-            context?: string | undefined;
-            reference: string;
             resource: string;
+            reference: string;
+            context?: string | undefined;
             source: string;
         }[]>;
     };

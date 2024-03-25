@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 
 import {
   DDBBatchWrite,
@@ -9,6 +9,7 @@ import { fatal } from "@triforce-heroes/triforce-core/Console";
 import { deepEqual } from "fast-equals";
 
 import { DataEntryPublishable } from "../types/DataEntryPublishable.js";
+import { weakLocales } from "../utils/locale.js";
 
 interface DataPublishableEntry {
   engine: string;
@@ -18,6 +19,8 @@ interface DataPublishableEntry {
   context?: string;
   source?: string;
   translation?: string;
+  same?: number;
+  sameSources?: number;
 }
 
 interface DataPublishableSources {
@@ -52,19 +55,12 @@ export async function PublishCommand(engineName: string) {
     engineName,
   );
 
-  publishedEntriesQuery.pushProjections(
-    "index",
-    "reference",
-    "resource",
-    "context",
-    "source",
-  );
-
   const publishedEntries = new Map(
     (await publishedEntriesQuery.get()).map((entry) => [entry.index, entry]),
   );
 
   const publishableEntries: DataPublishableEntry[] = [];
+  const publishableEntriesCopy: DataPublishableEntry[] = [];
 
   const publishedSourcesQuery = new DDBQueryBuilder<DataPublishableSources>(
     "tapp_sources",
@@ -79,54 +75,124 @@ export async function PublishCommand(engineName: string) {
   );
 
   const publishableSources: DataPublishableSources[] = [];
+  const publishableSourcesCopy: DataPublishableSources[] = [];
+
+  const publishableHashes = new Map<string, number>();
+  const publishableSourcesHashes = new Map<string, number>();
 
   for (const entry of entries) {
     const publishedEntry = publishedEntries.get(entry.index);
 
+    const publishableHash = JSON.stringify(
+      Object.fromEntries(
+        Object.entries(entry.sources).flatMap(([key, value]) => {
+          const keys = key
+            .split(",")
+            .filter((locale) => !weakLocales.includes(locale));
+
+          if (keys.length === 0) {
+            return [];
+          }
+
+          return [[keys.sort().join(","), value]];
+        }),
+      ),
+    );
+    const publishableHashId = publishableHashes.get(publishableHash);
+
+    if (publishableHashId === undefined) {
+      publishableHashes.set(publishableHash, entry.index);
+    }
+
+    const publishableSourcesHash = JSON.stringify({ ...entry.sources });
+    const publishableSourcesHashId = publishableSourcesHashes.get(
+      publishableSourcesHash,
+    );
+
+    if (publishableSourcesHashId === undefined) {
+      publishableSourcesHashes.set(publishableSourcesHash, entry.index);
+    }
+
+    const isSame =
+      publishableSourcesHashId !== undefined ||
+      publishableHashId !== publishableSourcesHashId;
+
+    const publishableEntry: DataPublishableEntry = {
+      engine: engineName,
+      index: entry.index,
+      reference: entry.reference,
+      resource: entry.resource,
+      ...publishedEntry,
+      ...(entry.context === undefined ? {} : { context: entry.context }),
+      ...(isSame || entry.sourceIndex === undefined
+        ? {}
+        : { source: entry.sourceIndex }),
+      ...(isSame || entry.translationIndex === undefined
+        ? {}
+        : { translation: entry.translationIndex }),
+      ...(publishableHashId === undefined ? {} : { same: publishableHashId }),
+      ...(publishableSourcesHashId !== undefined &&
+      publishableHashId !== publishableSourcesHashId
+        ? { sameSources: publishableSourcesHashId }
+        : {}),
+    };
+
+    publishableEntriesCopy.push(publishableEntry);
+
     if (
       publishedEntry === undefined ||
-      publishedEntry.reference !== entry.reference ||
-      publishedEntry.resource !== entry.resource ||
-      publishedEntry.source !== entry.sourceIndex
+      publishedEntry.reference !== publishableEntry.reference ||
+      publishedEntry.resource !== publishableEntry.resource ||
+      publishedEntry.context !== publishableEntry.context ||
+      publishedEntry.source !== publishableEntry.source ||
+      publishedEntry.same !== publishableEntry.same ||
+      publishedEntry.sameSources !== publishableEntry.sameSources
     ) {
-      publishableEntries.push({
-        engine: engineName,
-        index: entry.index,
-        reference: entry.reference,
-        resource: entry.resource,
-        ...(entry.context === undefined ? {} : { context: entry.context }),
-        ...(entry.sourceIndex === undefined
-          ? {}
-          : { source: entry.sourceIndex }),
-        ...(entry.translationIndex === undefined
-          ? {}
-          : { translation: entry.translationIndex }),
-      });
+      publishableEntries.push(publishableEntry);
     }
 
     const publishedSource = publishedSources.get(entry.index);
+    const publishableSource: DataPublishableSources = {
+      engine: engineName,
+      index: entry.index,
+      sources: entry.sources,
+      translations: entry.translations!,
+    };
 
-    if (
-      publishedSource === undefined ||
-      !deepEqual(publishedSource.sources, entry.sources) ||
-      !deepEqual(publishedSource.translations, entry.translations)
-    ) {
-      publishableSources.push({
-        engine: engineName,
-        index: entry.index,
-        sources: entry.sources,
-        translations: entry.translations,
-      });
+    if (publishableSourcesHashId === undefined) {
+      publishableSourcesCopy.push(publishableSource);
+
+      if (
+        publishedSource === undefined ||
+        !deepEqual(publishedSource.sources, publishableSource.sources) ||
+        !deepEqual(publishedSource.translations, publishableSource.translations)
+      ) {
+        publishableSources.push(publishableSource);
+      }
     }
   }
 
-  process.stdout.write(`Publishing entries (${publishableEntries.length})... `);
+  process.stdout.write(
+    `Publishing entries (${String(publishableEntries.length)} of ${String(publishableEntriesCopy.length)})... `,
+  );
+
+  writeFileSync(
+    "./publishable-entries.json",
+    JSON.stringify(publishableEntriesCopy, null, 2),
+  );
 
   await DDBBatchWrite("tapp_entries", publishableEntries);
 
   process.stdout.write("OK\n");
 
-  process.stdout.write(`Publishing sources (${publishableSources.length})... `);
+  process.stdout.write(
+    `Publishing sources (${String(publishableSources.length)} of ${String(publishableSourcesCopy.length)})... `,
+  );
+
+  writeFileSync(
+    "./publishable-sources.json",
+    JSON.stringify(publishableSourcesCopy, null, 2),
+  );
 
   await DDBBatchWrite("tapp_sources", publishableSources);
 

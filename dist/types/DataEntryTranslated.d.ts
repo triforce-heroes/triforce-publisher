@@ -1,5 +1,5 @@
 import { DataEntry } from "./DataEntry.js";
 export interface DataEntryTranslated extends DataEntry {
-    translation: string;
+    translation?: string;
     translationIndex?: string;
 }

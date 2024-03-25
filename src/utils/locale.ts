@@ -14,8 +14,12 @@ export const supportedLocales = [
 
   "ch",
   "ch_tw",
+  "ch_zh",
+
   "kr",
 ];
+
+export const weakLocales = ["jp", "ch", "ch_tw", "ch_zh", "kr", "de", "nl"];
 
 const guessableLocales: Array<
   [(typeof supportedLocales)[number], ...string[]]
@@ -35,6 +39,8 @@ const guessableLocales: Array<
 
   ["ch", "CNzh"],
   ["ch_tw", "TWzh"],
+  ["ch_zh", "CNzh"],
+
   ["kr", "KRko"],
 ];
 
