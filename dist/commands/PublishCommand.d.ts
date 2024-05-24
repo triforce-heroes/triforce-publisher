@@ -1,1 +1,5 @@
-export declare function PublishCommand(engineName: string): Promise<void>;
+interface PublishCommandOptions {
+    dryRun?: boolean;
+}
+export declare function PublishCommand(engineName: string, options?: PublishCommandOptions): Promise<void>;
+export {};

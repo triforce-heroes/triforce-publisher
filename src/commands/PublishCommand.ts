@@ -30,7 +30,14 @@ interface DataPublishableSources {
   translations: Record<string, string>;
 }
 
-export async function PublishCommand(engineName: string) {
+interface PublishCommandOptions {
+  dryRun?: boolean;
+}
+
+export async function PublishCommand(
+  engineName: string,
+  options?: PublishCommandOptions,
+) {
   if (!existsSync("./publishable.json")) {
     fatal("No publishable.ts found");
   }
@@ -43,10 +50,12 @@ export async function PublishCommand(engineName: string) {
 
   process.stdout.write("OK\n");
 
-  const engine = await DDBGetItem("tapp_engines", "engine", engineName);
+  if (options?.dryRun !== true) {
+    const engine = await DDBGetItem("tapp_engines", "engine", engineName);
 
-  if (engine === null) {
-    fatal(`Engine not found: ${engineName}`);
+    if (engine === null) {
+      fatal(`Engine not found: ${engineName}`);
+    }
   }
 
   const publishedEntriesQuery = new DDBQueryBuilder<DataPublishableEntry>(
@@ -172,29 +181,35 @@ export async function PublishCommand(engineName: string) {
     }
   }
 
-  process.stdout.write(
-    `Publishing entries (${String(publishableEntries.length)} of ${String(publishableEntriesCopy.length)})... `,
-  );
-
   writeFileSync(
     "./publishable-entries.json",
     JSON.stringify(publishableEntriesCopy, null, 2),
   );
 
-  await DDBBatchWrite("tapp_entries", publishableEntries);
+  if (options?.dryRun !== true) {
+    process.stdout.write(
+      `Publishing entries (${String(publishableEntries.length)} of ${String(publishableEntriesCopy.length)})... `,
+    );
 
-  process.stdout.write("OK\n");
+    await DDBBatchWrite("tapp_entries", publishableEntries);
 
-  process.stdout.write(
-    `Publishing sources (${String(publishableSources.length)} of ${String(publishableSourcesCopy.length)})... `,
-  );
+    process.stdout.write("OK\n");
+  }
 
   writeFileSync(
     "./publishable-sources.json",
     JSON.stringify(publishableSourcesCopy, null, 2),
   );
 
-  await DDBBatchWrite("tapp_sources", publishableSources);
+  if (options?.dryRun !== true) {
+    process.stdout.write(
+      `Publishing sources (${String(publishableSources.length)} of ${String(publishableSourcesCopy.length)})... `,
+    );
 
-  process.stdout.write("OK\n");
+    await DDBBatchWrite("tapp_sources", publishableSources);
+
+    process.stdout.write("OK\n");
+  }
+
+  process.stdout.write("\nDONE!\n");
 }

@@ -1,22 +1,13 @@
 export const supportedLocales = [
-  "en_us",
-  "es_us",
-  "fr_us",
-
   "en",
   "es",
   "fr",
   "it",
   "de",
   "nl",
-
-  "jp",
-
-  "ch",
-  "ch_tw",
-  "ch_zh",
-
-  "kr",
+  "ja",
+  "zh",
+  "ko",
 ];
 
 export const weakLocales = ["jp", "ch", "ch_tw", "ch_zh", "kr", "de", "nl"];
@@ -24,24 +15,15 @@ export const weakLocales = ["jp", "ch", "ch_tw", "ch_zh", "kr", "de", "nl"];
 const guessableLocales: Array<
   [(typeof supportedLocales)[number], ...string[]]
 > = [
-  ["en_us", "USen"],
-  ["es_us", "USes"],
-  ["fr_us", "USfr"],
-
-  ["en", "EUen"],
-  ["es", "EUes"],
-  ["fr", "EUfr"],
+  ["en", "en_us", "USen", "EUen"],
+  ["es", "es_us", "USes", "EUes"],
+  ["fr", "fr_us", "USfr", "EUfr"],
   ["it", "EUit"],
   ["de", "EUde"],
   ["nl", "EUnl"],
-
-  ["jp", "JPja"],
-
-  ["ch", "CNzh"],
-  ["ch_tw", "TWzh"],
-  ["ch_zh", "CNzh"],
-
-  ["kr", "KRko"],
+  ["ja", "jp", "JPja"],
+  ["zh", "ch", "ch_tw", "ch_zh", "CNzh", "TWzh", "CNzh"],
+  ["ko", "kr", "KRko"],
 ];
 
 export function guessLocale(language: string) {

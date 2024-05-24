@@ -1,6 +1,7 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 
 import { fatal } from "@triforce-heroes/triforce-core/Console";
+import { secureHash } from "@triforce-heroes/triforce-core/Hash";
 import {
   supportedLanguages,
   translate,
@@ -19,7 +20,6 @@ interface CompileOptions {
   letters?: boolean;
   uniques?: boolean;
   translate?: string;
-  translateRetry?: boolean;
 }
 
 function loadEntries(language: string) {
@@ -140,12 +140,10 @@ export async function CompileCommand(
             for (let i = 0; i < 10; i++) {
               try {
                 entryTranslation = await translate(
-                  "http://127.0.0.1:7900",
+                  "http://127.0.0.1:5000",
                   languageGuessed,
                   options.translate!,
                   commandsText,
-                  true,
-                  Boolean(options.translateRetry),
                 );
 
                 cachedTranslations.set(commandsText, entryTranslation);
@@ -199,7 +197,7 @@ export async function CompileCommand(
 
   const entries = loadEntries(languagesDirectories.at(0)!);
 
-  for (const [entryIndex, entry] of entries.entries()) {
+  for await (const entry of entries.values()) {
     const entryKey = getEntryKey(entry);
 
     const entrySources = new Map<string, string[]>();
@@ -234,7 +232,7 @@ export async function CompileCommand(
       ?.get(entryKey)?.[2];
 
     const publishable: DataEntryPublishable = {
-      index: entryIndex + 1,
+      index: await secureHash(Buffer.from(entryKey)),
       resource: entry.resource,
       reference: entry.reference,
       ...(entry.context !== undefined && {

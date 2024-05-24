@@ -25,7 +25,6 @@ export abstract class Driver {
 
   // eslint-disable-next-line class-methods-use-this
   public async entries(filesMatcher: string, engineDriver: CommandsDriver) {
-    // eslint-disable-next-line @typescript-eslint/require-array-sort-compare
     return (await glob(normalize(filesMatcher)))
       .filter((file) => minimatch(file, this.pattern, { matchBase: true }))
       .map((path): Resource | undefined => {
@@ -34,7 +33,7 @@ export abstract class Driver {
         return this.validate(resource) ? { path, resource } : undefined;
       })
       .filter((resource) => resource !== undefined)
-      .sort()
+      .sort((a, b) => a!.path.localeCompare(b!.path))
       .flatMap((resource) =>
         this.resourceEntries(resource!.path, resource!.resource),
       )

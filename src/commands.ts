@@ -23,13 +23,13 @@ program
   .option("-l, --letters", "extract all code points to letters.txt")
   .option("-u, --uniques", "extract all uniques strings to uniques.json")
   .option("-t, --translate <target>", "enable translation engine")
-  .option("-r, --translate-retry", "retry translations with failures")
   .action(CompileCommand);
 
 program
   .command("publish")
   .description("publish using a single publishable file")
   .argument("<engine>", "engine name to be published on DDB")
+  .option("-d, --dry-run", "do not actually publish", false)
   .action(PublishCommand);
 
 program.parse();
