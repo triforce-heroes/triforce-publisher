@@ -6,6 +6,7 @@ import {
   supportedLanguages,
   translate,
 } from "@triforce-heroes/triforce-core/Translator";
+import chalk from "chalk";
 import PQueue from "p-queue";
 
 import { loadEngineDriver } from "../drivers/index.js";
@@ -49,6 +50,55 @@ function swapMap(map: Map<string, string[]>) {
       key,
     ]),
   );
+}
+
+class CommandDriver {
+  public constructor(
+    public toTranslator: (message: string) => string,
+    public fromTranslator: (message: string) => string,
+  ) {}
+}
+
+class DropCommandDriver extends CommandDriver {
+  public constructor() {
+    super(
+      (m) => toReplaceCommands(m, () => " ").trim(),
+      (m) => m,
+    );
+  }
+}
+
+function toReplaceCommands(
+  message: string,
+  pattern: (index: number) => string,
+) {
+  return message.replaceAll(/<(\d+)>/g, (_, match: string) =>
+    pattern(Number(match)),
+  );
+}
+
+function fromReplaceCommands(_: string, match: string) {
+  return `<${match}>`;
+}
+
+const commandDrivers: CommandDriver[] = [
+  new CommandDriver(
+    (m) => toReplaceCommands(m, (index) => ` <${String(index)}> `),
+    (m) => m.replaceAll(/\s*<\s*(\d+)\s*>\s*/g, fromReplaceCommands),
+  ),
+  new CommandDriver(
+    (m) => toReplaceCommands(m, (index) => ` (${String(index)}%) `),
+    (m) => m.replaceAll(/\s*\(\s*(\d+)\s*%\s*\)\s*/g, fromReplaceCommands),
+  ),
+  new CommandDriver(
+    (m) => toReplaceCommands(m, (index) => ` <<${String(index)}>> `),
+    (m) => m.replaceAll(/\s*<\s*<\s*(\d+)\s*>\s*>\s*/g, fromReplaceCommands),
+  ),
+  new DropCommandDriver(),
+];
+
+function getCommandsOrder(message: string) {
+  return [...message.matchAll(/<(\d+)>/g)].map((match) => Number(match[1]));
 }
 
 export async function CompileCommand(
@@ -102,7 +152,14 @@ export async function CompileCommand(
     } else {
       process.stdout.write(`Translating from ${language}...\n\n`);
 
-      const cachedTranslations = new Map<string, string | null>();
+      const cachedTranslationsPath = `./cached-translations.${languageGuessed}.json`;
+      const cachedTranslations = new Map<string, string | null>(
+        existsSync(cachedTranslationsPath)
+          ? (JSON.parse(readFileSync(cachedTranslationsPath, "utf8")) as Array<
+              [string, string]
+            >)
+          : [],
+      );
 
       let translatedEntries = 0;
 
@@ -119,11 +176,23 @@ export async function CompileCommand(
             translatedLastProgress,
           );
         }
-      }, 1000);
+      }, 33);
+
+      // eslint-disable-next-line no-inner-declarations
+      function saveCache() {
+        process.stdout.write(chalk.greenBright("  CACHE SAVED\n\n"));
+
+        writeFileSync(
+          cachedTranslationsPath,
+          JSON.stringify([...cachedTranslations.entries()], null, 2),
+        );
+      }
+
+      const saveCacheInterval = setInterval(saveCache, 60_000);
 
       printProgress(0, entries.length);
 
-      const queue = new PQueue({ concurrency: 8 });
+      const queue = new PQueue({ concurrency: 4 });
 
       for (const entry of entries) {
         // eslint-disable-next-line @typescript-eslint/no-loop-func
@@ -137,18 +206,36 @@ export async function CompileCommand(
           if (cachedTranslations.has(commandsText)) {
             entryTranslation = cachedTranslations.get(commandsText)!;
           } else {
-            for (let i = 0; i < 10; i++) {
+            const commandsOrdering = getCommandsOrder(commandsText);
+
+            for (const commandDriver of commandDrivers) {
               try {
                 entryTranslation = await translate(
-                  "http://127.0.0.1:5000",
+                  `http://127.0.0.1:5000`,
                   languageGuessed,
                   options.translate!,
-                  commandsText,
+                  commandDriver.toTranslator(commandsText),
                 );
 
-                cachedTranslations.set(commandsText, entryTranslation);
+                if (entryTranslation === null) {
+                  continue;
+                }
 
-                break;
+                if (commandsOrdering.length > 0) {
+                  if (
+                    JSON.stringify(commandsOrdering) !==
+                    JSON.stringify(getCommandsOrder(entryTranslation))
+                  ) {
+                    continue;
+                  }
+
+                  entryTranslation =
+                    commandDriver instanceof DropCommandDriver
+                      ? commandsText
+                      : commandDriver.fromTranslator(entryTranslation);
+                }
+
+                cachedTranslations.set(commandsText, entryTranslation);
               } catch {
                 // Empty.
               }
@@ -175,6 +262,9 @@ export async function CompileCommand(
       }
 
       await queue.onIdle();
+
+      clearInterval(saveCacheInterval);
+      saveCache();
 
       clearInterval(translationProgressInterval);
       printProgress(entries.length, entries.length);
