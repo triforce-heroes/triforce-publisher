@@ -20,8 +20,8 @@ program
   .description("compile all prepared entries to a single publishable file")
   .argument("<engine driver>", 'engine driver to be used (eg. "ZTFH")')
   .argument("<languages>", "language folders containing entries.json at root")
-  .option("-l, --letters", "extract all code points to letters.txt")
-  .option("-u, --uniques", "extract all uniques strings to uniques.json")
+  .option("-l, --letters", "extract all code points to letters.txt", false)
+  .option("-u, --uniques", "extract all uniques strings to uniques.json", false)
   .option("-t, --translate <target>", "enable translation engine")
   .action(CompileCommand);
 

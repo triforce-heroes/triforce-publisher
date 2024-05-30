@@ -9,8 +9,8 @@ importers:
   .:
     devDependencies:
       '@aws-sdk/client-dynamodb':
-        specifier: ^3.583.0
-        version: 3.583.0
+        specifier: ^3.584.0
+        version: 3.584.0
       '@aws-sdk/client-s3':
         specifier: ^3.583.0
         version: 3.583.0
@@ -18,11 +18,11 @@ importers:
         specifier: ^3.583.0
         version: 3.583.0(@aws-sdk/client-sso-oidc@3.583.0)
       '@aws-sdk/util-dynamodb':
-        specifier: ^3.583.0
-        version: 3.583.0(@aws-sdk/client-dynamodb@3.583.0)
+        specifier: ^3.584.0
+        version: 3.584.0(@aws-sdk/client-dynamodb@3.584.0)
       '@rheactor/eslint-config-rheactor':
         specifier: github:rheactor/eslint-config-rheactor
-        version: https://codeload.github.com/rheactor/eslint-config-rheactor/tar.gz/cd2d6d9b2d48eb32b052753656fe087e51954883(tailwindcss@3.4.3)(typescript@5.4.5)(vitest@1.6.0(@types/node@20.12.12))
+        version: https://codeload.github.com/rheactor/eslint-config-rheactor/tar.gz/3046fd32602caca42ca09e72df2e87dc818c1ab8(tailwindcss@3.4.3)(typescript@5.4.5)(vitest@1.6.0(@types/node@20.12.12))
       '@swc/cli':
         specifier: ^0.3.12
         version: 0.3.12(@swc/core@1.5.7)(chokidar@3.6.0)
@@ -31,10 +31,10 @@ importers:
         version: 1.5.7
       '@triforce-heroes/triforce-commands':
         specifier: github:triforce-heroes/triforce-commands
-        version: https://codeload.github.com/triforce-heroes/triforce-commands/tar.gz/07d824987a62e345f840d4b5983218cb1176f8f1(@aws-sdk/client-dynamodb@3.583.0)(@aws-sdk/client-s3@3.583.0)(@aws-sdk/credential-providers@3.583.0(@aws-sdk/client-sso-oidc@3.583.0))(@aws-sdk/util-dynamodb@3.583.0(@aws-sdk/client-dynamodb@3.583.0))(commander@12.1.0)
+        version: https://codeload.github.com/triforce-heroes/triforce-commands/tar.gz/99a1d45469943853c5d4972f4b1e686d52ff0705
       '@triforce-heroes/triforce-core':
         specifier: github:triforce-heroes/triforce-core
-        version: https://codeload.github.com/triforce-heroes/triforce-core/tar.gz/c9609b9a2e2bfc09db54f57daa9cc7252bf0fb86(@aws-sdk/client-dynamodb@3.583.0)(@aws-sdk/client-s3@3.583.0)(@aws-sdk/credential-providers@3.583.0(@aws-sdk/client-sso-oidc@3.583.0))(@aws-sdk/util-dynamodb@3.583.0(@aws-sdk/client-dynamodb@3.583.0))(commander@12.1.0)
+        version: https://codeload.github.com/triforce-heroes/triforce-core/tar.gz/4a6192ab18b1b04b2e8e20aa936d9c3e57f84b29(@aws-sdk/client-dynamodb@3.584.0)(@aws-sdk/client-s3@3.583.0)(@aws-sdk/credential-providers@3.583.0(@aws-sdk/client-sso-oidc@3.583.0))(@aws-sdk/util-dynamodb@3.584.0(@aws-sdk/client-dynamodb@3.584.0))(commander@12.1.0)
       '@triforce-heroes/triforce-koei':
         specifier: github:triforce-heroes/triforce-koei
         version: https://codeload.github.com/triforce-heroes/triforce-koei/tar.gz/36b1566b95de877a275cd2d3c590efc9ce14d148
@@ -116,8 +116,8 @@ packages:
     resolution: {integrity: sha512-FrkVjrDRsXofw1F/iJqR/DOKPbIakIB+Dr04l25Em4PTWBj29NcQyYW49qcCHF0CPkqQpin8ASXDWzGv7A0yxg==}
     engines: {node: '>=16.0.0'}
 
-  '@aws-sdk/client-dynamodb@3.583.0':
-    resolution: {integrity: sha512-0UCpW3MLnL/z8w/dI8+ODUJR9jEza4iJVb6Wn0DLQ3NYUXQAVzgF857+h8FVP36U+jzyOYpAqoxcG0BRedPNyg==}
+  '@aws-sdk/client-dynamodb@3.584.0':
+    resolution: {integrity: sha512-LgldN5hbx+cQzzVCr54Rc9jxhB40a5gcnQmGs+qdW5l8vQ89CVW2lWMoLDj/QzcHl27NLI7Kkr0ee++xquU9sg==}
     engines: {node: '>=16.0.0'}
 
   '@aws-sdk/client-s3@3.583.0':
@@ -254,11 +254,11 @@ packages:
     resolution: {integrity: sha512-XUKJWWo+KOB7fbnPP0+g/o5Ulku/X53t7i/h+sPHr5xxYTJJ9CYnbToo95mzxe7xWvkLrsNtJ8L+MnNn9INs2w==}
     engines: {node: '>=16.0.0'}
 
-  '@aws-sdk/util-dynamodb@3.583.0':
-    resolution: {integrity: sha512-ZBJEiLQGQ2aD9WgTfL/7ALQuVbaBAfcmf+eUbMqmpr6C5QB2CxM0irlmYp6Ljse7w6dYz0FG4KRlUr3jjkZ62Q==}
+  '@aws-sdk/util-dynamodb@3.584.0':
+    resolution: {integrity: sha512-s8XiKyOpaZfnNJD/rqQ1y0VIWQFEaaKQWvLjT1K1hc4GHM6FGxr4tteBEVBNa5kOd4vJvIETaR2pGSxCUL9bFA==}
     engines: {node: '>=16.0.0'}
     peerDependencies:
-      '@aws-sdk/client-dynamodb': ^3.583.0
+      '@aws-sdk/client-dynamodb': ^3.584.0
 
   '@aws-sdk/util-endpoints@3.583.0':
     resolution: {integrity: sha512-ZC9mb2jq6BFXPYsUsD2tmYcnlmd+9PGNwnFNn8jk4abna5Jjk2wDknN81ybktmBR5ttN9W8ugmktuKtvAMIDCQ==}
@@ -546,8 +546,8 @@ packages:
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
     engines: {node: '>=14'}
 
-  '@rheactor/eslint-config-rheactor@https://codeload.github.com/rheactor/eslint-config-rheactor/tar.gz/cd2d6d9b2d48eb32b052753656fe087e51954883':
-    resolution: {tarball: https://codeload.github.com/rheactor/eslint-config-rheactor/tar.gz/cd2d6d9b2d48eb32b052753656fe087e51954883}
+  '@rheactor/eslint-config-rheactor@https://codeload.github.com/rheactor/eslint-config-rheactor/tar.gz/3046fd32602caca42ca09e72df2e87dc818c1ab8':
+    resolution: {tarball: https://codeload.github.com/rheactor/eslint-config-rheactor/tar.gz/3046fd32602caca42ca09e72df2e87dc818c1ab8}
     version: 1.0.0
     peerDependencies:
       vitest: ^1.6.0
@@ -926,13 +926,13 @@ packages:
   '@tokenizer/token@0.3.0':
     resolution: {integrity: sha512-OvjF+z51L3ov0OyAU0duzsYuvO01PH7x4t6DJx+guahgTnBHkhJdG7soQeTSFLWN3efnHyibZ4Z8l2EuWwJN3A==}
 
-  '@triforce-heroes/triforce-commands@https://codeload.github.com/triforce-heroes/triforce-commands/tar.gz/07d824987a62e345f840d4b5983218cb1176f8f1':
-    resolution: {tarball: https://codeload.github.com/triforce-heroes/triforce-commands/tar.gz/07d824987a62e345f840d4b5983218cb1176f8f1}
+  '@triforce-heroes/triforce-commands@https://codeload.github.com/triforce-heroes/triforce-commands/tar.gz/99a1d45469943853c5d4972f4b1e686d52ff0705':
+    resolution: {tarball: https://codeload.github.com/triforce-heroes/triforce-commands/tar.gz/99a1d45469943853c5d4972f4b1e686d52ff0705}
     version: 1.0.0
     hasBin: true
 
-  '@triforce-heroes/triforce-core@https://codeload.github.com/triforce-heroes/triforce-core/tar.gz/c9609b9a2e2bfc09db54f57daa9cc7252bf0fb86':
-    resolution: {tarball: https://codeload.github.com/triforce-heroes/triforce-core/tar.gz/c9609b9a2e2bfc09db54f57daa9cc7252bf0fb86}
+  '@triforce-heroes/triforce-core@https://codeload.github.com/triforce-heroes/triforce-core/tar.gz/4a6192ab18b1b04b2e8e20aa936d9c3e57f84b29':
+    resolution: {tarball: https://codeload.github.com/triforce-heroes/triforce-core/tar.gz/4a6192ab18b1b04b2e8e20aa936d9c3e57f84b29}
     version: 1.0.0
     peerDependencies:
       '@aws-sdk/client-dynamodb': ^3.583.0
@@ -1449,8 +1449,8 @@ packages:
   eastasianwidth@0.2.0:
     resolution: {integrity: sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA==}
 
-  electron-to-chromium@1.4.782:
-    resolution: {integrity: sha512-JUfU61e8tr+i5Y1FKXcKs+Xe+rJ+CEqm4cgv1kMihPE2EvYHmYyVr3Im/+1+Z5B29Be2EEGCZCwAc6Tazdl1Yg==}
+  electron-to-chromium@1.4.783:
+    resolution: {integrity: sha512-bT0jEz/Xz1fahQpbZ1D7LgmPYZ3iHVY39NcWWro1+hA2IvjiPeaXtfSqrQ+nXjApMvQRE2ASt1itSLRrebHMRQ==}
 
   emoji-regex@8.0.0:
     resolution: {integrity: sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A==}
@@ -1848,6 +1848,7 @@ packages:
 
   glob@7.2.3:
     resolution: {integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==}
+    deprecated: Glob versions prior to v9 are no longer supported
 
   globals@13.24.0:
     resolution: {integrity: sha512-AhO5QUcj8llrbG09iWhPU2B204J1xnPeL8kQmVorSsy+Sjj1sk8gIyh6cUocGmH4L0UuhAJy+hJMRA4mgA4mFQ==}
@@ -2694,6 +2695,7 @@ packages:
 
   rimraf@3.0.2:
     resolution: {integrity: sha512-JZkJMZkAGFFPP2YqXZXPbMlMBgsxzE8ILs4lMIX/2o0L9UBw9O/Y3o6wFw/i9YLapcUJWwqbi3kdxIPdC62TIA==}
+    deprecated: Rimraf versions prior to v4 are no longer supported
     hasBin: true
 
   rimraf@5.0.7:
@@ -3281,7 +3283,7 @@ snapshots:
     transitivePeerDependencies:
       - aws-crt
 
-  '@aws-sdk/client-dynamodb@3.583.0':
+  '@aws-sdk/client-dynamodb@3.584.0':
     dependencies:
       '@aws-crypto/sha256-browser': 3.0.0
       '@aws-crypto/sha256-js': 3.0.0
@@ -3793,9 +3795,9 @@ snapshots:
     dependencies:
       tslib: 2.6.2
 
-  '@aws-sdk/util-dynamodb@3.583.0(@aws-sdk/client-dynamodb@3.583.0)':
+  '@aws-sdk/util-dynamodb@3.584.0(@aws-sdk/client-dynamodb@3.584.0)':
     dependencies:
-      '@aws-sdk/client-dynamodb': 3.583.0
+      '@aws-sdk/client-dynamodb': 3.584.0
       tslib: 2.6.2
 
   '@aws-sdk/util-endpoints@3.583.0':
@@ -4048,7 +4050,7 @@ snapshots:
   '@pkgjs/parseargs@0.11.0':
     optional: true
 
-  '@rheactor/eslint-config-rheactor@https://codeload.github.com/rheactor/eslint-config-rheactor/tar.gz/cd2d6d9b2d48eb32b052753656fe087e51954883(tailwindcss@3.4.3)(typescript@5.4.5)(vitest@1.6.0(@types/node@20.12.12))':
+  '@rheactor/eslint-config-rheactor@https://codeload.github.com/rheactor/eslint-config-rheactor/tar.gz/3046fd32602caca42ca09e72df2e87dc818c1ab8(tailwindcss@3.4.3)(typescript@5.4.5)(vitest@1.6.0(@types/node@20.12.12))':
     dependencies:
       '@typescript-eslint/eslint-plugin': 7.10.0(@typescript-eslint/parser@7.10.0(eslint@8.57.0)(typescript@5.4.5))(eslint@8.57.0)(typescript@5.4.5)
       '@typescript-eslint/parser': 7.10.0(eslint@8.57.0)(typescript@5.4.5)
@@ -4512,22 +4514,14 @@ snapshots:
 
   '@tokenizer/token@0.3.0': {}
 
-  '@triforce-heroes/triforce-commands@https://codeload.github.com/triforce-heroes/triforce-commands/tar.gz/07d824987a62e345f840d4b5983218cb1176f8f1(@aws-sdk/client-dynamodb@3.583.0)(@aws-sdk/client-s3@3.583.0)(@aws-sdk/credential-providers@3.583.0(@aws-sdk/client-sso-oidc@3.583.0))(@aws-sdk/util-dynamodb@3.583.0(@aws-sdk/client-dynamodb@3.583.0))(commander@12.1.0)':
-    dependencies:
-      '@triforce-heroes/triforce-core': https://codeload.github.com/triforce-heroes/triforce-core/tar.gz/c9609b9a2e2bfc09db54f57daa9cc7252bf0fb86(@aws-sdk/client-dynamodb@3.583.0)(@aws-sdk/client-s3@3.583.0)(@aws-sdk/credential-providers@3.583.0(@aws-sdk/client-sso-oidc@3.583.0))(@aws-sdk/util-dynamodb@3.583.0(@aws-sdk/client-dynamodb@3.583.0))(commander@12.1.0)
-    transitivePeerDependencies:
-      - '@aws-sdk/client-dynamodb'
-      - '@aws-sdk/client-s3'
-      - '@aws-sdk/credential-providers'
-      - '@aws-sdk/util-dynamodb'
-      - commander
+  '@triforce-heroes/triforce-commands@https://codeload.github.com/triforce-heroes/triforce-commands/tar.gz/99a1d45469943853c5d4972f4b1e686d52ff0705': {}
 
-  '@triforce-heroes/triforce-core@https://codeload.github.com/triforce-heroes/triforce-core/tar.gz/c9609b9a2e2bfc09db54f57daa9cc7252bf0fb86(@aws-sdk/client-dynamodb@3.583.0)(@aws-sdk/client-s3@3.583.0)(@aws-sdk/credential-providers@3.583.0(@aws-sdk/client-sso-oidc@3.583.0))(@aws-sdk/util-dynamodb@3.583.0(@aws-sdk/client-dynamodb@3.583.0))(commander@12.1.0)':
+  '@triforce-heroes/triforce-core@https://codeload.github.com/triforce-heroes/triforce-core/tar.gz/4a6192ab18b1b04b2e8e20aa936d9c3e57f84b29(@aws-sdk/client-dynamodb@3.584.0)(@aws-sdk/client-s3@3.583.0)(@aws-sdk/credential-providers@3.583.0(@aws-sdk/client-sso-oidc@3.583.0))(@aws-sdk/util-dynamodb@3.584.0(@aws-sdk/client-dynamodb@3.584.0))(commander@12.1.0)':
     dependencies:
-      '@aws-sdk/client-dynamodb': 3.583.0
+      '@aws-sdk/client-dynamodb': 3.584.0
       '@aws-sdk/client-s3': 3.583.0
       '@aws-sdk/credential-providers': 3.583.0(@aws-sdk/client-sso-oidc@3.583.0)
-      '@aws-sdk/util-dynamodb': 3.583.0(@aws-sdk/client-dynamodb@3.583.0)
+      '@aws-sdk/util-dynamodb': 3.584.0(@aws-sdk/client-dynamodb@3.584.0)
       chalk: 5.3.0
       commander: 12.1.0
       json-diff: 1.0.6
@@ -4909,7 +4903,7 @@ snapshots:
   browserslist@4.23.0:
     dependencies:
       caniuse-lite: 1.0.30001621
-      electron-to-chromium: 1.4.782
+      electron-to-chromium: 1.4.783
       node-releases: 2.0.14
       update-browserslist-db: 1.0.16(browserslist@4.23.0)
 
@@ -5118,7 +5112,7 @@ snapshots:
 
   eastasianwidth@0.2.0: {}
 
-  electron-to-chromium@1.4.782: {}
+  electron-to-chromium@1.4.783: {}
 
   emoji-regex@8.0.0: {}
 

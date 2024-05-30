@@ -14,6 +14,7 @@ import { DataEntryPublishable } from "../types/DataEntryPublishable.js";
 import { DataEntryTranslated } from "../types/DataEntryTranslated.js";
 import { DataEntryTranslationProgress } from "../types/DataEntryTranslationProgress.js";
 import { getEntryKey } from "../utils/entry.js";
+import { translationService } from "../utils/libre.js";
 import { guessLocale, simplifyLocales } from "../utils/locale.js";
 import { printProgress } from "../utils/progress.js";
 
@@ -139,6 +140,25 @@ export async function CompileCommand(
 
   const rawEntries = new Map<string, Map<string, DataEntryTranslationPair>>();
 
+  let translatorPort: number;
+
+  if (options?.translate !== undefined) {
+    process.stdout.write(`Initializing translation service on port... `);
+
+    const languagesGuessed = new Set<string>();
+
+    for await (const languageGuessed of languages.values()) {
+      languagesGuessed.add(languageGuessed);
+    }
+
+    translatorPort = await translationService(
+      [...languagesGuessed],
+      options.translate,
+    );
+
+    process.stdout.write(`${String(translatorPort)}\n`);
+  }
+
   for await (const [language, languageGuessed] of languages.entries()) {
     const entries = loadEntries(language);
 
@@ -176,7 +196,7 @@ export async function CompileCommand(
             translatedLastProgress,
           );
         }
-      }, 33);
+      }, 1000);
 
       // eslint-disable-next-line no-inner-declarations
       function saveCache() {
@@ -192,7 +212,7 @@ export async function CompileCommand(
 
       printProgress(0, entries.length);
 
-      const queue = new PQueue({ concurrency: 4 });
+      const queue = new PQueue({ concurrency: 1 });
 
       for (const entry of entries) {
         // eslint-disable-next-line @typescript-eslint/no-loop-func
@@ -211,7 +231,7 @@ export async function CompileCommand(
             for (const commandDriver of commandDrivers) {
               try {
                 entryTranslation = await translate(
-                  `http://127.0.0.1:5000`,
+                  `http://127.0.0.1:${String(translatorPort)}`,
                   languageGuessed,
                   options.translate!,
                   commandDriver.toTranslator(commandsText),
