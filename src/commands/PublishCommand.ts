@@ -9,7 +9,7 @@ import { fatal } from "@triforce-heroes/triforce-core/Console";
 import { deepEqual } from "fast-equals";
 
 import { DataEntryPublishable } from "../types/DataEntryPublishable.js";
-import { weakLocales } from "../utils/locale.js";
+import { weakLocalesFull } from "../utils/locale.js";
 
 interface DataPublishableEntry {
   engine: string;
@@ -97,7 +97,7 @@ export async function PublishCommand(
         Object.entries(entry.sources).flatMap(([key, value]) => {
           const keys = key
             .split(",")
-            .filter((locale) => !weakLocales.includes(locale));
+            .filter((locale) => !weakLocalesFull.includes(locale));
 
           if (keys.length === 0) {
             return [];

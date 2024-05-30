@@ -23,6 +23,8 @@ program
   .option("-l, --letters", "extract all code points to letters.txt", false)
   .option("-u, --uniques", "extract all uniques strings to uniques.json", false)
   .option("-t, --translate <target>", "enable translation engine")
+  .option("-i, --cookie-id <id>", "set Google Translate cookie ID")
+  .option("-k, --concurrences <n>", "number of concurrences", Number, 1)
   .action(CompileCommand);
 
 program

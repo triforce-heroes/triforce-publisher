@@ -10,7 +10,8 @@ export const supportedLocales = [
   "ko",
 ];
 
-export const weakLocales = ["jp", "ch", "ch_tw", "ch_zh", "kr", "de", "nl"];
+export const weakLocales = ["jp", "ch", "kr"];
+export const weakLocalesFull = [...weakLocales, "fr", "it", "de", "nl"];
 
 const guessableLocales: Array<
   [(typeof supportedLocales)[number], ...string[]]

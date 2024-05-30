@@ -2,10 +2,6 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 
 import { fatal } from "@triforce-heroes/triforce-core/Console";
 import { secureHash } from "@triforce-heroes/triforce-core/Hash";
-import {
-  supportedLanguages,
-  translate,
-} from "@triforce-heroes/triforce-core/Translator";
 import chalk from "chalk";
 import PQueue from "p-queue";
 
@@ -14,14 +10,17 @@ import { DataEntryPublishable } from "../types/DataEntryPublishable.js";
 import { DataEntryTranslated } from "../types/DataEntryTranslated.js";
 import { DataEntryTranslationProgress } from "../types/DataEntryTranslationProgress.js";
 import { getEntryKey } from "../utils/entry.js";
-import { translationService } from "../utils/libre.js";
-import { guessLocale, simplifyLocales } from "../utils/locale.js";
+import { translate } from "../utils/google.js";
+import { guessLocale, simplifyLocales, weakLocales } from "../utils/locale.js";
 import { printProgress } from "../utils/progress.js";
+import { delay } from "../utils/utils.js";
 
 interface CompileOptions {
   letters?: boolean;
   uniques?: boolean;
   translate?: string;
+  cookieId?: string;
+  concurrences: number;
 }
 
 function loadEntries(language: string) {
@@ -55,6 +54,7 @@ function swapMap(map: Map<string, string[]>) {
 
 class CommandDriver {
   public constructor(
+    public name: string,
     public toTranslator: (message: string) => string,
     public fromTranslator: (message: string) => string,
   ) {}
@@ -63,6 +63,7 @@ class CommandDriver {
 class DropCommandDriver extends CommandDriver {
   public constructor() {
     super(
+      "drop",
       (m) => toReplaceCommands(m, () => " ").trim(),
       (m) => m,
     );
@@ -84,16 +85,38 @@ function fromReplaceCommands(_: string, match: string) {
 
 const commandDrivers: CommandDriver[] = [
   new CommandDriver(
+    "default",
     (m) => toReplaceCommands(m, (index) => ` <${String(index)}> `),
     (m) => m.replaceAll(/\s*<\s*(\d+)\s*>\s*/g, fromReplaceCommands),
   ),
   new CommandDriver(
+    "hashtag",
+    (m) => toReplaceCommands(m, (index) => ` #${String(index)} `),
+    (m) => m.replaceAll(/\s*(?:#|n\s*º)\s*(\d+)\s*/g, fromReplaceCommands),
+  ),
+  new CommandDriver(
+    "percent",
     (m) => toReplaceCommands(m, (index) => ` (${String(index)}%) `),
     (m) => m.replaceAll(/\s*\(\s*(\d+)\s*%\s*\)\s*/g, fromReplaceCommands),
   ),
   new CommandDriver(
+    "brackets",
+    (m) => toReplaceCommands(m, (index) => ` [${String(index)}] `),
+    (m) => m.replaceAll(/\s*\[\s*(\d+)\s*\]\s*/g, fromReplaceCommands),
+  ),
+  new CommandDriver(
+    "double arrows",
     (m) => toReplaceCommands(m, (index) => ` <<${String(index)}>> `),
     (m) => m.replaceAll(/\s*<\s*<\s*(\d+)\s*>\s*>\s*/g, fromReplaceCommands),
+  ),
+  new CommandDriver(
+    "hr id",
+    (m) => toReplaceCommands(m, (index) => ` <hr id="${String(index)}" /> `),
+    (m) =>
+      m.replaceAll(
+        /\s*<hr\s*id\s*=\s*"\s*(\d+)\s*"\s*\/\s*>\s*/g,
+        fromReplaceCommands,
+      ),
   ),
   new DropCommandDriver(),
 ];
@@ -119,11 +142,12 @@ export async function CompileCommand(
     fatal("No languages specified");
   }
 
-  if (
-    options?.translate !== undefined &&
-    !supportedLanguages.includes(options.translate)
-  ) {
-    fatal(`Invalid source language: ${options.translate}`);
+  if (options?.translate !== undefined) {
+    for (const language of languagesDirectories) {
+      if (guessLocale(language) === undefined) {
+        fatal(`Invalid source language: ${options.translate}`);
+      }
+    }
   }
 
   const languages = new Map<string, string>();
@@ -140,25 +164,6 @@ export async function CompileCommand(
 
   const rawEntries = new Map<string, Map<string, DataEntryTranslationPair>>();
 
-  let translatorPort: number;
-
-  if (options?.translate !== undefined) {
-    process.stdout.write(`Initializing translation service on port... `);
-
-    const languagesGuessed = new Set<string>();
-
-    for await (const languageGuessed of languages.values()) {
-      languagesGuessed.add(languageGuessed);
-    }
-
-    translatorPort = await translationService(
-      [...languagesGuessed],
-      options.translate,
-    );
-
-    process.stdout.write(`${String(translatorPort)}\n`);
-  }
-
   for await (const [language, languageGuessed] of languages.entries()) {
     const entries = loadEntries(language);
 
@@ -170,7 +175,9 @@ export async function CompileCommand(
         ),
       );
     } else {
-      process.stdout.write(`Translating from ${language}...\n\n`);
+      process.stdout.write(
+        `Translating from ${language} as ${languageGuessed}...\n\n`,
+      );
 
       const cachedTranslationsPath = `./cached-translations.${languageGuessed}.json`;
       const cachedTranslations = new Map<string, string | null>(
@@ -212,7 +219,7 @@ export async function CompileCommand(
 
       printProgress(0, entries.length);
 
-      const queue = new PQueue({ concurrency: 1 });
+      const queue = new PQueue({ concurrency: options.concurrences });
 
       for (const entry of entries) {
         // eslint-disable-next-line @typescript-eslint/no-loop-func
@@ -228,36 +235,49 @@ export async function CompileCommand(
           } else {
             const commandsOrdering = getCommandsOrder(commandsText);
 
-            for (const commandDriver of commandDrivers) {
-              try {
-                entryTranslation = await translate(
-                  `http://127.0.0.1:${String(translatorPort)}`,
-                  languageGuessed,
-                  options.translate!,
-                  commandDriver.toTranslator(commandsText),
-                );
+            retry: for (let i = 0; i < 3; i++) {
+              for (const commandDriver of commandDrivers) {
+                if (commandDriver instanceof DropCommandDriver) {
+                  entryTranslation = null;
 
-                if (entryTranslation === null) {
+                  break retry;
+                }
+
+                try {
+                  entryTranslation = await translate(
+                    languageGuessed,
+                    options.translate!,
+                    commandDriver.toTranslator(commandsText),
+                    options.cookieId,
+                  );
+                } catch {
+                  await delay(1000 * i);
+
+                  continue retry;
+                }
+
+                if (
+                  commandsOrdering.length > 0 &&
+                  JSON.stringify(commandsOrdering) !==
+                    JSON.stringify(
+                      getCommandsOrder(
+                        commandDriver.fromTranslator(entryTranslation),
+                      ),
+                    )
+                ) {
+                  if (weakLocales.includes(languageGuessed)) {
+                    break retry;
+                  }
+
                   continue;
                 }
 
-                if (commandsOrdering.length > 0) {
-                  if (
-                    JSON.stringify(commandsOrdering) !==
-                    JSON.stringify(getCommandsOrder(entryTranslation))
-                  ) {
-                    continue;
-                  }
-
-                  entryTranslation =
-                    commandDriver instanceof DropCommandDriver
-                      ? commandsText
-                      : commandDriver.fromTranslator(entryTranslation);
-                }
+                entryTranslation =
+                  commandDriver.fromTranslator(entryTranslation);
 
                 cachedTranslations.set(commandsText, entryTranslation);
-              } catch {
-                // Empty.
+
+                break retry;
               }
             }
           }
@@ -290,7 +310,7 @@ export async function CompileCommand(
       printProgress(entries.length, entries.length);
 
       rawEntries.set(
-        languageGuessed,
+        language,
         new Map<string, DataEntryTranslationPair>(
           entries.map((entry) => [
             getEntryKey(entry),

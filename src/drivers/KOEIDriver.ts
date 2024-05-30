@@ -3,7 +3,6 @@ import { basename } from "node:path";
 import { validate } from "@triforce-heroes/triforce-koei";
 import { transpile } from "@triforce-heroes/triforce-koei/Transpile";
 
-import { Entry } from "@triforce-heroes/triforce-commands/dist/entries/Entry.js";
 import { meta } from "../metas/HWAC.js";
 import { DataEntryRaw } from "../types/DataEntryRaw.js";
 
@@ -23,10 +22,10 @@ export const KOEIDriver = new (class extends Driver {
   public resourceEntries(path: string, resource: Buffer): DataEntryRaw[] {
     const [index] = basename(path).slice(0, -5).split("_", 3) as [string];
 
-    return transpile(resource).map((entry, entryIndex) => ({
+    return transpile(resource)[1].map((entry, entryIndex) => ({
       resource: index,
       reference: String(entryIndex),
-      source: (entry as Entry[])[0]!.toString(),
+      source: entry[0].toString(),
     }));
   }
 

@@ -1,0 +1,1 @@
+import{decode as t}from"html-entities";export async function translate(e,n,r,o){return fetch(`https://translate.google.com/m?${new URLSearchParams({sl:e,tl:n,q:r}).toString()}`,{headers:{cookie:void 0===o?"":`GOOGLE_ABUSE_EXEMPTION=${o}`}}).then(async t=>t.text()).then(t=>/"result-container">(.*?)<\/div>/.exec(t)[1]).then(e=>t(e))}
