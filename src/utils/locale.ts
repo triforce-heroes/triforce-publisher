@@ -10,7 +10,7 @@ export const supportedLocales = [
   "ko",
 ];
 
-export const weakLocales = ["jp", "ch", "kr"];
+export const weakLocales = ["ja", "zh", "ko"];
 export const weakLocalesFull = [...weakLocales, "fr", "it", "de", "nl"];
 
 const guessableLocales: Array<

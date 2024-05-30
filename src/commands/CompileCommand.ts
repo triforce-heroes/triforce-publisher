@@ -237,9 +237,9 @@ export async function CompileCommand(
 
             retry: for (let i = 0; i < 3; i++) {
               for (const commandDriver of commandDrivers) {
-                if (commandDriver instanceof DropCommandDriver) {
-                  entryTranslation = null;
+                entryTranslation = null;
 
+                if (commandDriver instanceof DropCommandDriver) {
                   break retry;
                 }
 
@@ -266,6 +266,8 @@ export async function CompileCommand(
                     )
                 ) {
                   if (weakLocales.includes(languageGuessed)) {
+                    entryTranslation = null;
+
                     break retry;
                   }
 
@@ -327,13 +329,15 @@ export async function CompileCommand(
 
   const entries = loadEntries(languagesDirectories.at(0)!);
 
+  const letters = new Set<number>();
+
   for await (const entry of entries.values()) {
     const entryKey = getEntryKey(entry);
 
     const entrySources = new Map<string, string[]>();
     const entryTranslations = new Map<string, string[]>();
 
-    for (const language of languages.values()) {
+    for (const [language, languageGuessed] of languages.entries()) {
       const languageEntry = rawEntries.get(language);
 
       if (languageEntry === undefined) {
@@ -346,6 +350,17 @@ export async function CompileCommand(
         entrySources.get(source)!.push(language);
       } else {
         entrySources.set(source, [language]);
+
+        if (options?.letters && !weakLocales.includes(languageGuessed)) {
+          const sourceCommands = engineDriverInstance
+            .parse(source)
+            .toCompressed()
+            .toText();
+
+          for (const letter of sourceCommands) {
+            letters.add(letter.codePointAt(0)!);
+          }
+        }
       }
 
       if (options?.translate !== undefined) {
@@ -353,6 +368,17 @@ export async function CompileCommand(
           entryTranslations.get(translation!)!.push(language);
         } else {
           entryTranslations.set(translation!, [language]);
+
+          if (options.letters) {
+            const translationCommands = engineDriverInstance
+              .parse(translation!)
+              .toCompressed()
+              .toText();
+
+            for (const letter of translationCommands) {
+              letters.add(letter.codePointAt(0)!);
+            }
+          }
         }
       }
     }
@@ -395,22 +421,9 @@ export async function CompileCommand(
   }
 
   if (options?.letters) {
-    const letters = new Set<string>();
-
-    for (const publishable of publishables) {
-      for (const source of Object.values(publishable.sources)) {
-        for (const letter of source) {
-          letters.add(letter);
-        }
-      }
-    }
-
     writeFileSync(
       "./letters.txt",
-      [...letters]
-        .map((s) => s.codePointAt(0)!)
-        .sort((a, b) => a - b)
-        .join(","),
+      [...letters].sort((a, b) => a - b).join(","),
     );
   }
 
