@@ -31,12 +31,13 @@ interface DataPublishableSources {
 }
 
 interface PublishCommandOptions {
-  dryRun?: boolean;
+  dryRun: boolean;
+  testRun: boolean;
 }
 
 export async function PublishCommand(
   engineName: string,
-  options?: PublishCommandOptions,
+  options: PublishCommandOptions,
 ) {
   if (!existsSync("./publishable.json")) {
     fatal("No publishable.ts found");
@@ -50,7 +51,7 @@ export async function PublishCommand(
 
   process.stdout.write("OK\n");
 
-  if (options?.dryRun !== true) {
+  if (!options.dryRun) {
     const engine = await DDBGetItem("tapp_engines", "engine", engineName);
 
     if (engine === null) {
@@ -182,31 +183,47 @@ export async function PublishCommand(
   }
 
   writeFileSync(
+    "./publishable-entries-last.json",
+    JSON.stringify(publishableEntries, null, 2),
+  );
+
+  writeFileSync(
     "./publishable-entries.json",
     JSON.stringify(publishableEntriesCopy, null, 2),
   );
 
-  if (options?.dryRun !== true) {
+  if (!options.dryRun) {
     process.stdout.write(
       `Publishing entries (${String(publishableEntries.length)} of ${String(publishableEntriesCopy.length)})... `,
     );
 
-    await DDBBatchWrite("tapp_entries", publishableEntries);
+    await DDBBatchWrite(
+      "tapp_entries",
+      options.testRun ? publishableEntries.slice(0, 25) : publishableEntries,
+    );
 
     process.stdout.write("OK\n");
   }
+
+  writeFileSync(
+    "./publishable-sources-last.json",
+    JSON.stringify(publishableSources, null, 2),
+  );
 
   writeFileSync(
     "./publishable-sources.json",
     JSON.stringify(publishableSourcesCopy, null, 2),
   );
 
-  if (options?.dryRun !== true) {
+  if (!options.dryRun) {
     process.stdout.write(
       `Publishing sources (${String(publishableSources.length)} of ${String(publishableSourcesCopy.length)})... `,
     );
 
-    await DDBBatchWrite("tapp_sources", publishableSources);
+    await DDBBatchWrite(
+      "tapp_sources",
+      options.testRun ? publishableSources.slice(0, 25) : publishableSources,
+    );
 
     process.stdout.write("OK\n");
   }

@@ -3,28 +3,42 @@ export const supportedLocales = [
   "es",
   "fr",
   "it",
+  "pt",
   "de",
   "nl",
   "ja",
   "zh",
   "ko",
+  "ru",
 ];
 
 export const weakLocales = ["ja", "zh", "ko"];
-export const weakLocalesFull = [...weakLocales, "fr", "it", "de", "nl"];
+export const weakLocalesFull = [...weakLocales, "fr", "it", "de", "nl", "ru"];
 
 const guessableLocales: Array<
   [(typeof supportedLocales)[number], ...string[]]
 > = [
-  ["en", "en_us", "USen", "EUen"],
-  ["es", "es_us", "USes", "EUes"],
-  ["fr", "fr_us", "USfr", "EUfr"],
-  ["it", "EUit"],
-  ["de", "EUde"],
-  ["nl", "EUnl"],
-  ["ja", "jp", "JPja"],
-  ["zh", "ch", "ch_tw", "ch_zh", "CNzh", "TWzh", "CNzh"],
-  ["ko", "kr", "KRko"],
+  ["en", "en_us", "USen", "EUen", "english", "ukenglish"],
+  ["es", "es_us", "USes", "EUes", "spanish", "naspanish"],
+  ["fr", "fr_us", "USfr", "EUfr", "french", "nafrench"],
+  ["it", "EUit", "italian"],
+  ["pt", "pt_pt", "pt_br", "EUpt", "portuguese"],
+  ["de", "EUde", "german"],
+  ["nl", "EUnl", "dutch"],
+  ["ja", "jp", "JPja", "japanese"],
+  [
+    "zh",
+    "ch",
+    "ch_tw",
+    "ch_zh",
+    "CNzh",
+    "TWzh",
+    "CNzh",
+    "cntraditional",
+    "cnsimplified",
+  ],
+  ["ko", "kr", "KRko", "KOkr", "korean"],
+  ["ru", "EUru", "russian"],
 ];
 
 export function guessLocale(language: string) {

@@ -1,5 +1,6 @@
 interface PublishCommandOptions {
-    dryRun?: boolean;
+    dryRun: boolean;
+    testRun: boolean;
 }
-export declare function PublishCommand(engineName: string, options?: PublishCommandOptions): Promise<void>;
+export declare function PublishCommand(engineName: string, options: PublishCommandOptions): Promise<void>;
 export {};

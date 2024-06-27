@@ -33,9 +33,9 @@ export abstract class Driver {
         return this.validate(resource) ? { path, resource } : undefined;
       })
       .filter((resource) => resource !== undefined)
-      .sort((a, b) => a!.path.localeCompare(b!.path))
+      .sort((a, b) => a.path.localeCompare(b.path))
       .flatMap((resource) =>
-        this.resourceEntries(resource!.path, resource!.resource),
+        this.resourceEntries(resource.path, resource.resource),
       )
       .map((entry) => ({
         ...entry,

@@ -32,6 +32,7 @@ program
   .description("publish using a single publishable file")
   .argument("<engine>", "engine name to be published on DDB")
   .option("-d, --dry-run", "do not actually publish", false)
+  .option("-t, --test-run", "publish only the first chunk", false)
   .action(PublishCommand);
 
 program.parse();

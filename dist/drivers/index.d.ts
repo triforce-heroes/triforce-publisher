@@ -1,4 +1,3 @@
-/// <reference types="node" resolution-mode="require"/>
 import { Driver as CommandsDriver } from "@triforce-heroes/triforce-commands";
 import { Driver } from "./Driver.js";
 export declare const supportedSourceDrivers: {
@@ -11,7 +10,7 @@ export declare const supportedSourceDrivers: {
             sourceIndex: string;
             resource: string;
             reference: string;
-            context?: string | undefined;
+            context?: string;
             source: string;
         }[]>;
         reassignLocales(entries: import("../types/DataEntryRaw.js").DataEntryRaw[]): Record<string, import("../types/DataEntryRaw.js").DataEntryRaw[]>;
@@ -26,7 +25,28 @@ export declare const supportedSourceDrivers: {
             sourceIndex: string;
             resource: string;
             reference: string;
-            context?: string | undefined;
+            context?: string;
+            source: string;
+        }[]>;
+    };
+    nloc: {
+        resourceEntries(resource: string): import("../types/DataEntryRaw.js").DataEntryRaw[];
+        reassignLocales(entries: import("../types/DataEntryRaw.js").DataEntryRaw[]): {
+            [k: string]: {
+                resource: string;
+                reference: string;
+                context?: string;
+                source: string;
+            }[];
+        };
+        readonly name: string;
+        readonly pattern: string;
+        validate(_resource: Buffer): boolean;
+        entries(filesMatcher: string, engineDriver: CommandsDriver): Promise<{
+            sourceIndex: string;
+            resource: string;
+            reference: string;
+            context?: string;
             source: string;
         }[]>;
     };

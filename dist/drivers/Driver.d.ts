@@ -1,4 +1,3 @@
-/// <reference types="node" resolution-mode="require"/>
 import { Driver as CommandsDriver } from "@triforce-heroes/triforce-commands";
 import { DataEntryRaw } from "../types/DataEntryRaw.js";
 export declare abstract class Driver {
@@ -10,7 +9,7 @@ export declare abstract class Driver {
         sourceIndex: string;
         resource: string;
         reference: string;
-        context?: string | undefined;
+        context?: string;
         source: string;
     }[]>;
     reassignLocales(entries: DataEntryRaw[]): Record<string, DataEntryRaw[]>;

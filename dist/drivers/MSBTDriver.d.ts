@@ -1,4 +1,3 @@
-/// <reference types="node" resolution-mode="require"/>
 import { DataEntryRaw } from "../types/DataEntryRaw.js";
 export declare const MSBTDriver: {
     resourceEntries(resource: string): DataEntryRaw[];
@@ -9,7 +8,7 @@ export declare const MSBTDriver: {
         sourceIndex: string;
         resource: string;
         reference: string;
-        context?: string | undefined;
+        context?: string;
         source: string;
     }[]>;
     reassignLocales(entries: DataEntryRaw[]): Record<string, DataEntryRaw[]>;
