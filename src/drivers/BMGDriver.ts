@@ -14,7 +14,7 @@ export const BMGDriver = new (class extends Driver {
   // eslint-disable-next-line class-methods-use-this
   public resourceEntries(resource: string): DataEntryRaw[] {
     return extract(readFileSync(resource)).map(([reference, source]) => ({
-      resource: resource.slice(0, -4).replaceAll("\\", "/"),
+      resource: resource.slice(resource.indexOf("\\") + 1, -4),
       reference: String(reference),
       source,
     }));

@@ -110,11 +110,30 @@ const commandDrivers: CommandDriver[] = [
     (m) => m.replaceAll(/\s*<\s*<\s*(\d+)\s*>\s*>\s*/g, fromReplaceCommands),
   ),
   new CommandDriver(
+    "quotes",
+    (m) => toReplaceCommands(m, (index) => ` ("${String(index)}") `),
+    (m) => m.replaceAll(/\s*\(\s*"\s*(\d+)\s*"\s*\)\s*/g, fromReplaceCommands),
+  ),
+  new CommandDriver(
     "hr id",
     (m) => toReplaceCommands(m, (index) => ` <hr id="${String(index)}" /> `),
     (m) =>
       m.replaceAll(
         /\s*<hr\s*id\s*=\s*"\s*(\d+)\s*"\s*\/\s*>\s*/g,
+        fromReplaceCommands,
+      ),
+  ),
+  new CommandDriver(
+    "ears",
+    (m) => toReplaceCommands(m, (index) => ` )<${String(index)}>( `),
+    (m) => m.replaceAll(/\s*\)\s*<\s*(\d+)\s*>\s*\(\s*/g, fromReplaceCommands),
+  ),
+  new CommandDriver(
+    "eyes",
+    (m) => toReplaceCommands(m, (index) => ` (.)<${String(index)}>(.) `),
+    (m) =>
+      m.replaceAll(
+        /\s*\(\s*\.\s*\)\s*<\s*(\d+)\s*>\s*\(\s*\.\s*\)\s*/g,
         fromReplaceCommands,
       ),
   ),
@@ -225,7 +244,8 @@ export async function CompileCommand(
         // eslint-disable-next-line @typescript-eslint/no-loop-func
         void queue.add(async () => {
           const commands = engineDriverInstance.parse(entry.source);
-          const commandsCompressed = commands.toCompressed();
+          const commandsPreCompressed = commands.toCompressed();
+          const commandsCompressed = commandsPreCompressed.toCompressed();
           const commandsText = commandsCompressed.toText();
 
           let entryTranslation: string | null = null;
@@ -277,6 +297,10 @@ export async function CompileCommand(
                 entryTranslation =
                   commandDriver.fromTranslator(entryTranslation);
 
+                if (entryTranslation.includes("><")) {
+                  continue;
+                }
+
                 cachedTranslations.set(commandsText, entryTranslation);
 
                 break retry;
@@ -287,8 +311,11 @@ export async function CompileCommand(
           translatedEntries++;
 
           // eslint-disable-next-line require-atomic-updates
-          entry.translation = commandsCompressed.fromCompressed(
-            entryTranslation ?? "",
+          entry.translation = commandsPreCompressed.fromCompressed(
+            commandsCompressed.fromCompressed(
+              entryTranslation ?? "",
+              commandsPreCompressed,
+            ),
             commands,
           );
 
