@@ -7,12 +7,14 @@ import {
   Driver as CommandsDriver,
 } from "@triforce-heroes/triforce-commands";
 
+import { BMGDriver } from "./BMGDriver.js";
 import { Driver } from "./Driver.js";
 import { KOEIDriver } from "./KOEIDriver.js";
 import { MSBTDriver } from "./MSBTDriver.js";
 import { NLOCDriver } from "./NLOCDriver.js";
 
 export const supportedSourceDrivers = {
+  bmg: BMGDriver,
   msbt: MSBTDriver,
   koei: KOEIDriver,
   nloc: NLOCDriver,

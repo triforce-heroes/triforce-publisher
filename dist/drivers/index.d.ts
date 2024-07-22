@@ -1,6 +1,20 @@
 import { Driver as CommandsDriver } from "@triforce-heroes/triforce-commands";
 import { Driver } from "./Driver.js";
 export declare const supportedSourceDrivers: {
+    bmg: {
+        resourceEntries(resource: string): import("../types/DataEntryRaw.js").DataEntryRaw[];
+        readonly name: string;
+        readonly pattern: string;
+        validate(_resource: Buffer): boolean;
+        entries(filesMatcher: string, engineDriver: CommandsDriver): Promise<{
+            sourceIndex: string;
+            resource: string;
+            reference: string;
+            context?: string;
+            source: string;
+        }[]>;
+        reassignLocales(entries: import("../types/DataEntryRaw.js").DataEntryRaw[]): Record<string, import("../types/DataEntryRaw.js").DataEntryRaw[]>;
+    };
     msbt: {
         resourceEntries(resource: string): import("../types/DataEntryRaw.js").DataEntryRaw[];
         readonly name: string;
