@@ -24,21 +24,21 @@
     "test:coverage": "vitest --coverage"
   },
   "dependencies": {
+    "@libsql/client": "^0.7.0",
+    "@rheactor/eslint-config-rheactor": "github:rheactor/eslint-config-rheactor",
+    "@swc/cli": "^0.4.0",
+    "@swc/core": "^1.7.3",
     "@triforce-heroes/triforce-bmg": "github:triforce-heroes/triforce-bmg",
     "@triforce-heroes/triforce-commands": "github:triforce-heroes/triforce-commands",
     "@triforce-heroes/triforce-core": "github:triforce-heroes/triforce-core",
     "@triforce-heroes/triforce-koei": "github:triforce-heroes/triforce-koei",
     "@triforce-heroes/triforce-msbt": "github:triforce-heroes/triforce-msbt",
-    "@triforce-heroes/triforce-nloc": "github:triforce-heroes/triforce-nloc"
-  },
-  "devDependencies": {
-    "@rheactor/eslint-config-rheactor": "github:rheactor/eslint-config-rheactor",
-    "@swc/cli": "^0.4.0",
-    "@swc/core": "^1.7.3",
+    "@triforce-heroes/triforce-nloc": "github:triforce-heroes/triforce-nloc",
     "@types/node": "^22.0.0",
     "@vitest/coverage-v8": "^2.0.4",
     "chalk": "^5.3.0",
     "commander": "^12.1.0",
+    "dotenv": "^16.4.5",
     "eslint-plugin-vitest": "^0.4.1",
     "fast-equals": "^5.0.1",
     "glob": "^11.0.0",

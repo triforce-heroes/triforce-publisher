@@ -1,34 +1,13 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 
-import {
-  DDBBatchWrite,
-  DDBGetItem,
-} from "@triforce-heroes/triforce-core/AWS/DDB";
-import { DDBQueryBuilder } from "@triforce-heroes/triforce-core/AWS/DDBQueryBuilder";
 import { fatal } from "@triforce-heroes/triforce-core/Console";
-import { deepEqual } from "fast-equals";
 
-import { DataEntryPublishable } from "../types/DataEntryPublishable.js";
-import { weakLocalesFull } from "../utils/locale.js";
-
-interface DataPublishableEntry {
-  engine: string;
-  index: number;
-  reference: string;
-  resource: string;
-  context?: string;
-  source?: string;
-  translation?: string;
-  same?: number;
-  sameSources?: number;
-}
-
-interface DataPublishableSources {
-  engine: string;
-  index: number;
-  sources: Record<string, string>;
-  translations: Record<string, string>;
-}
+import { getEngine } from "../database/EngineDatabase.js";
+import { getEntries, updateEntries } from "../database/EntryDatabase.js";
+import { Entry } from "../types/Entry.js";
+import { EntryPublishable } from "../types/EntryPublishable.js";
+import { getEntryHash } from "../utils/HashUtils.js";
+import { isSame as objectIsSame } from "../utils/ObjectUtils.js";
 
 interface PublishCommandOptions {
   dryRun: boolean;
@@ -47,185 +26,109 @@ export async function PublishCommand(
 
   const entries = JSON.parse(
     readFileSync("./publishable.json", "utf8"),
-  ) as DataEntryPublishable[];
+  ) as Entry[];
 
   process.stdout.write("OK\n");
 
   if (!options.dryRun) {
-    const engine = await DDBGetItem("tapp_engines", "engine", engineName);
+    const engine = await getEngine(engineName);
 
     if (engine === null) {
       fatal(`Engine not found: ${engineName}`);
     }
   }
 
-  const publishedEntriesQuery = new DDBQueryBuilder<DataPublishableEntry>(
-    "tapp_entries",
-    "engine",
-    engineName,
-  );
-
   const publishedEntries = new Map(
-    (await publishedEntriesQuery.get()).map((entry) => [entry.index, entry]),
+    (await getEntries(engineName, options.testRun)).map((entry) => [
+      entry.index,
+      entry,
+    ]),
   );
 
-  const publishableEntries: DataPublishableEntry[] = [];
-  const publishableEntriesCopy: DataPublishableEntry[] = [];
+  const publishableEntries: EntryPublishable[] = [];
 
-  const publishedSourcesQuery = new DDBQueryBuilder<DataPublishableSources>(
-    "tapp_sources",
-    "engine",
-    engineName,
-  );
-
-  publishedSourcesQuery.pushProjections("index", "sources", "translations");
-
-  const publishedSources = new Map(
-    (await publishedSourcesQuery.get()).map((entry) => [entry.index, entry]),
-  );
-
-  const publishableSources: DataPublishableSources[] = [];
-  const publishableSourcesCopy: DataPublishableSources[] = [];
-
-  const publishableHashes = new Map<string, number>();
-  const publishableSourcesHashes = new Map<string, number>();
+  const sameHashes = new Map<string, number>();
+  const sameSourcesHashes = new Map<string, number>();
 
   for (const entry of entries) {
     const publishedEntry = publishedEntries.get(entry.index);
 
-    const publishableHash = JSON.stringify(
-      Object.fromEntries(
-        Object.entries(entry.sources).flatMap(([key, value]) => {
-          const keys = key
-            .split(",")
-            .filter((locale) => !weakLocalesFull.includes(locale));
-
-          if (keys.length === 0) {
-            return [];
-          }
-
-          return [[keys.sort().join(","), value]];
-        }),
-      ),
-    );
-    const publishableHashId = publishableHashes.get(publishableHash);
-
-    if (publishableHashId === undefined) {
-      publishableHashes.set(publishableHash, entry.index);
+    if (publishedEntry === undefined && options.testRun) {
+      continue;
     }
 
-    const publishableSourcesHash = JSON.stringify({ ...entry.sources });
-    const publishableSourcesHashId = publishableSourcesHashes.get(
-      publishableSourcesHash,
-    );
+    const sameHash = getEntryHash(entry);
+    const sameId = sameHashes.get(sameHash);
 
-    if (publishableSourcesHashId === undefined) {
-      publishableSourcesHashes.set(publishableSourcesHash, entry.index);
+    if (sameId === undefined) {
+      sameHashes.set(sameHash, entry.index);
     }
 
-    const isSame =
-      publishableSourcesHashId !== undefined ||
-      publishableHashId !== publishableSourcesHashId;
+    const sameSourcesHash = JSON.stringify({ ...entry.sources });
+    const sameSourcesId = sameSourcesHashes.get(sameSourcesHash);
 
-    const publishableEntry: DataPublishableEntry = {
+    if (sameSourcesId === undefined) {
+      sameSourcesHashes.set(sameSourcesHash, entry.index);
+    }
+
+    const isSame = sameId !== undefined || sameSourcesId !== sameId;
+
+    const publishableEntry: EntryPublishable = {
       engine: engineName,
       index: entry.index,
-      reference: entry.reference,
       resource: entry.resource,
-      ...publishedEntry,
-      ...(entry.context === undefined ? {} : { context: entry.context }),
-      ...(isSame || entry.sourceIndex === undefined
-        ? {}
-        : { source: entry.sourceIndex }),
-      ...(isSame || entry.translationIndex === undefined
-        ? {}
-        : { translation: entry.translationIndex }),
-      ...(publishableHashId === undefined ? {} : { same: publishableHashId }),
-      ...(publishableSourcesHashId !== undefined &&
-      publishableHashId !== publishableSourcesHashId
-        ? { sameSources: publishableSourcesHashId }
-        : {}),
+      reference: entry.reference,
+      context: entry.context,
+      sources: isSame ? {} : entry.sources,
+      translations: isSame ? {} : entry.translations,
+      sourceIndex: isSame ? null : entry.sourceIndex,
+      translationIndex: isSame ? null : entry.translationIndex,
+      same: sameId ?? null,
+      sameSources:
+        sameSourcesId !== undefined && sameSourcesId !== sameId
+          ? sameSourcesId
+          : null,
     };
 
-    publishableEntriesCopy.push(publishableEntry);
-
-    if (
-      publishedEntry === undefined ||
-      publishedEntry.reference !== publishableEntry.reference ||
-      publishedEntry.resource !== publishableEntry.resource ||
-      publishedEntry.context !== publishableEntry.context ||
-      publishedEntry.source !== publishableEntry.source ||
-      publishedEntry.same !== publishableEntry.same ||
-      publishedEntry.sameSources !== publishableEntry.sameSources
+    if (publishedEntry === undefined) {
+      publishableEntries.push(publishableEntry);
+    } else if (
+      publishableEntry.same !== null &&
+      publishableEntry.same !== publishedEntry.same
     ) {
       publishableEntries.push(publishableEntry);
-    }
-
-    const publishedSource = publishedSources.get(entry.index);
-    const publishableSource: DataPublishableSources = {
-      engine: engineName,
-      index: entry.index,
-      sources: entry.sources,
-      translations: entry.translations!,
-    };
-
-    if (publishableSourcesHashId === undefined) {
-      publishableSourcesCopy.push(publishableSource);
-
-      if (
-        publishedSource === undefined ||
-        !deepEqual(publishedSource.sources, publishableSource.sources) ||
-        !deepEqual(publishedSource.translations, publishableSource.translations)
+    } else if (
+      publishableEntry.sameSources !== null &&
+      publishableEntry.sameSources !== publishedEntry.sameSources
+    ) {
+      publishableEntries.push(publishableEntry);
+    } else if (publishableEntry.same === null) {
+      if (publishableEntry.sourceIndex !== publishedEntry.sourceIndex) {
+        publishableEntries.push(publishableEntry);
+      } else if (
+        !objectIsSame(publishableEntry.sources, publishedEntry.sources)
       ) {
-        publishableSources.push(publishableSource);
+        publishableEntries.push(publishableEntry);
+      } else if (
+        !objectIsSame(
+          publishableEntry.translations,
+          publishedEntry.translations,
+        )
+      ) {
+        publishableEntries.push(publishableEntry);
       }
     }
   }
 
   writeFileSync(
-    "./publishable-entries-last.json",
+    "./publishable-unfiltered.json",
     JSON.stringify(publishableEntries, null, 2),
   );
 
-  writeFileSync(
-    "./publishable-entries.json",
-    JSON.stringify(publishableEntriesCopy, null, 2),
-  );
-
   if (!options.dryRun) {
-    process.stdout.write(
-      `Publishing entries (${String(publishableEntries.length)} of ${String(publishableEntriesCopy.length)})... `,
-    );
-
-    await DDBBatchWrite(
-      "tapp_entries",
-      options.testRun ? publishableEntries.slice(0, 25) : publishableEntries,
-    );
-
-    process.stdout.write("OK\n");
-  }
-
-  writeFileSync(
-    "./publishable-sources-last.json",
-    JSON.stringify(publishableSources, null, 2),
-  );
-
-  writeFileSync(
-    "./publishable-sources.json",
-    JSON.stringify(publishableSourcesCopy, null, 2),
-  );
-
-  if (!options.dryRun) {
-    process.stdout.write(
-      `Publishing sources (${String(publishableSources.length)} of ${String(publishableSourcesCopy.length)})... `,
-    );
-
-    await DDBBatchWrite(
-      "tapp_sources",
-      options.testRun ? publishableSources.slice(0, 25) : publishableSources,
-    );
-
-    process.stdout.write("OK\n");
+    for (let i = 0; i < publishableEntries.length; i += 1000) {
+      await updateEntries(engineName, publishableEntries.slice(i, i + 1000));
+    }
   }
 
   process.stdout.write("\nDONE!\n");

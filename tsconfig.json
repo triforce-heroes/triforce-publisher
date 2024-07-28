@@ -27,6 +27,11 @@
     "target": "ESNext"
   },
 
-  "include": ["./src/**/*.ts", "./tests/**/*.ts", "./vite.config.ts"],
+  "include": [
+    "**/.env.d.ts",
+    "./src/**/*.ts",
+    "./tests/**/*.ts",
+    "./vite.config.ts"
+  ],
   "exclude": ["./dist/**/*.js"]
 }

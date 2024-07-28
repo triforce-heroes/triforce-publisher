@@ -7,9 +7,9 @@ import chalk from "chalk";
 import PQueue from "p-queue";
 
 import { loadEngineDriver } from "../drivers/index.js";
-import { DataEntryPublishable } from "../types/DataEntryPublishable.js";
 import { DataEntryTranslated } from "../types/DataEntryTranslated.js";
 import { DataEntryTranslationProgress } from "../types/DataEntryTranslationProgress.js";
+import { Entry } from "../types/Entry.js";
 import { getEntryKey } from "../utils/entry.js";
 import { translate } from "../utils/google.js";
 import { guessLocale, simplifyLocales, weakLocales } from "../utils/locale.js";
@@ -376,7 +376,7 @@ export async function CompileCommand(
 
   process.stdout.write("Preparing publishables... ");
 
-  const publishables: DataEntryPublishable[] = [];
+  const publishables: Entry[] = [];
 
   const entries = loadEntries(languagesDirectories.at(0)!);
 
@@ -438,7 +438,7 @@ export async function CompileCommand(
       .get(languagesDirectories.at(0)!)
       ?.get(entryKey)?.[2];
 
-    const publishable: DataEntryPublishable = {
+    const publishable: Entry = {
       index: await secureHash(Buffer.from(entryKey)),
       resource: entry.resource,
       reference: entry.reference,
@@ -463,7 +463,7 @@ export async function CompileCommand(
     const uniques = new Set<string>();
 
     for (const publishable of publishables) {
-      for (const source of Object.values(publishable.sources)) {
+      for (const source of Object.values(publishable.sources!)) {
         uniques.add(source);
       }
     }
