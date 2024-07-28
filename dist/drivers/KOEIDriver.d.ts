@@ -9,7 +9,7 @@ export declare const KOEIDriver: {
         sourceIndex: string;
         resource: string;
         reference: string;
-        context?: string;
+        context?: string | undefined;
         source: string;
     }[]>;
 };

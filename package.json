@@ -32,14 +32,10 @@
     "@triforce-heroes/triforce-nloc": "github:triforce-heroes/triforce-nloc"
   },
   "devDependencies": {
-    "@aws-sdk/client-dynamodb": "^3.616.0",
-    "@aws-sdk/client-s3": "^3.616.0",
-    "@aws-sdk/credential-providers": "^3.616.0",
-    "@aws-sdk/util-dynamodb": "^3.616.0",
     "@rheactor/eslint-config-rheactor": "github:rheactor/eslint-config-rheactor",
     "@swc/cli": "^0.4.0",
-    "@swc/core": "^1.7.0",
-    "@types/node": "^20.14.11",
+    "@swc/core": "^1.7.3",
+    "@types/node": "^22.0.0",
     "@vitest/coverage-v8": "^2.0.4",
     "chalk": "^5.3.0",
     "commander": "^12.1.0",
@@ -51,7 +47,7 @@
     "p-queue": "^8.0.1",
     "rimraf": "^6.0.1",
     "tsx": "^4.16.2",
-    "typescript": "^5.5.3",
+    "typescript": "^5.5.4",
     "vitest": "^2.0.4"
   }
 }

@@ -9,7 +9,7 @@ export declare abstract class Driver {
         sourceIndex: string;
         resource: string;
         reference: string;
-        context?: string;
+        context?: string | undefined;
         source: string;
     }[]>;
     reassignLocales(entries: DataEntryRaw[]): Record<string, DataEntryRaw[]>;

@@ -8,7 +8,7 @@ export declare const MSBTDriver: {
         sourceIndex: string;
         resource: string;
         reference: string;
-        context?: string;
+        context?: string | undefined;
         source: string;
     }[]>;
     reassignLocales(entries: DataEntryRaw[]): Record<string, DataEntryRaw[]>;

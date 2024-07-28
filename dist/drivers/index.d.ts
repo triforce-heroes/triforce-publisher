@@ -10,7 +10,7 @@ export declare const supportedSourceDrivers: {
             sourceIndex: string;
             resource: string;
             reference: string;
-            context?: string;
+            context?: string | undefined;
             source: string;
         }[]>;
         reassignLocales(entries: import("../types/DataEntryRaw.js").DataEntryRaw[]): Record<string, import("../types/DataEntryRaw.js").DataEntryRaw[]>;
@@ -24,7 +24,7 @@ export declare const supportedSourceDrivers: {
             sourceIndex: string;
             resource: string;
             reference: string;
-            context?: string;
+            context?: string | undefined;
             source: string;
         }[]>;
         reassignLocales(entries: import("../types/DataEntryRaw.js").DataEntryRaw[]): Record<string, import("../types/DataEntryRaw.js").DataEntryRaw[]>;
@@ -39,7 +39,7 @@ export declare const supportedSourceDrivers: {
             sourceIndex: string;
             resource: string;
             reference: string;
-            context?: string;
+            context?: string | undefined;
             source: string;
         }[]>;
     };
@@ -49,7 +49,7 @@ export declare const supportedSourceDrivers: {
             [k: string]: {
                 resource: string;
                 reference: string;
-                context?: string;
+                context?: string | undefined;
                 source: string;
             }[];
         };
@@ -60,7 +60,7 @@ export declare const supportedSourceDrivers: {
             sourceIndex: string;
             resource: string;
             reference: string;
-            context?: string;
+            context?: string | undefined;
             source: string;
         }[]>;
     };

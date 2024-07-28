@@ -1,5 +1,6 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 
+import { Entries, EntryText } from "@triforce-heroes/triforce-commands";
 import { fatal } from "@triforce-heroes/triforce-core/Console";
 import { secureHash } from "@triforce-heroes/triforce-core/Hash";
 import chalk from "chalk";
@@ -144,6 +145,11 @@ function getCommandsOrder(message: string) {
   return [...message.matchAll(/<(\d+)>/g)].map((match) => Number(match[1]));
 }
 
+const smallFixes = [
+  [", or ", " or "],
+  [", and ", " and "],
+] as const;
+
 export async function CompileCommand(
   engineDriver: string,
   languagesInput: string,
@@ -243,7 +249,21 @@ export async function CompileCommand(
       for (const entry of entries) {
         // eslint-disable-next-line @typescript-eslint/no-loop-func
         void queue.add(async () => {
-          const commands = engineDriverInstance.parse(entry.source);
+          const commands = new Entries(
+            engineDriverInstance.parse(entry.source).entries.map((e) => {
+              if (e instanceof EntryText) {
+                let { text } = e;
+
+                for (const [from, to] of smallFixes) {
+                  text = text.replaceAll(from, to);
+                }
+
+                return new EntryText(text);
+              }
+
+              return e;
+            }),
+          );
           const commandsPreCompressed = commands.toCompressed();
           const commandsCompressed = commandsPreCompressed.toCompressed();
           const commandsText = commandsCompressed.toText();

@@ -5,7 +5,7 @@ export declare const NLOCDriver: {
         [k: string]: {
             resource: string;
             reference: string;
-            context?: string;
+            context?: string | undefined;
             source: string;
         }[];
     };
@@ -16,7 +16,7 @@ export declare const NLOCDriver: {
         sourceIndex: string;
         resource: string;
         reference: string;
-        context?: string;
+        context?: string | undefined;
         source: string;
     }[]>;
 };
