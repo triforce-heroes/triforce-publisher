@@ -21,7 +21,13 @@ export async function translate(
       },
     },
   )
-    .then(async (res) => res.text())
+    .then(async (res) => {
+      if (!res.ok) {
+        throw new Error(res.statusText);
+      }
+
+      return res.text();
+    })
     .then((text) => {
       const textMatch = /"result-container">(.*?)<\/div>/.exec(text);
 

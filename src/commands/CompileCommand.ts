@@ -290,7 +290,11 @@ export async function CompileCommand(
                     commandDriver.toTranslator(commandsText),
                     options.cookieId,
                   );
-                } catch {
+                } catch (err) {
+                  if ((err as Error).message === "Too Many Requests") {
+                    fatal(`Too many requests: requires --cookie-id`);
+                  }
+
                   await delay(1000 * i);
 
                   continue retry;
