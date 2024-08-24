@@ -1,4 +1,4 @@
-import { createClient, InArgs } from "@libsql/client";
+import { Client, createClient, InArgs } from "@libsql/client";
 // eslint-disable-next-line import/no-unassigned-import
 import "dotenv/config";
 
@@ -13,16 +13,24 @@ export type Row<T extends Interface> = {
     : never;
 };
 
-const db = createClient({
-  url: process.env.TURSO_DATABASE_URL,
-  authToken: process.env.TURSO_AUTH_TOKEN,
-});
+let dbInstance: Client | undefined;
+
+function db() {
+  if (!dbInstance) {
+    dbInstance = createClient({
+      url: process.env.TURSO_DATABASE_URL,
+      authToken: process.env.TURSO_AUTH_TOKEN,
+    });
+  }
+
+  return dbInstance;
+}
 
 export async function execute<T extends Interface>(
   sql: string,
   args: InArgs = {},
 ) {
-  return db
+  return db()
     .execute({ sql, args })
     .then(({ rows }) => rows as unknown as Array<Row<T>>);
 }
@@ -35,7 +43,7 @@ export async function executeFirst<T extends Interface>(
 }
 
 export async function batch(queries: Array<[query: string, args: InArgs]>) {
-  return db.batch(
+  return db().batch(
     queries.map(([sql, args]) => ({ sql, args })),
     "write",
   );
