@@ -33,5 +33,5 @@ export async function translate(
 
       return textMatch![1]!;
     })
-    .then((text) => decode(text));
+    .then((text) => decode(text).replaceAll("\u200B​", ""));
 }
