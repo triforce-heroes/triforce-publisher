@@ -138,6 +138,11 @@ const commandDrivers: CommandDriver[] = [
         fromReplaceCommands,
       ),
   ),
+  new CommandDriver(
+    "breaks",
+    (m) => toReplaceCommands(m, (index) => `\r\n<${String(index)}>\r\n`),
+    (m) => m.replaceAll(/\s*<\s*(\d+)\s*>\s*/g, fromReplaceCommands),
+  ),
   new DropCommandDriver(),
 ];
 

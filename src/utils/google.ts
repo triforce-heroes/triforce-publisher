@@ -8,19 +8,19 @@ export async function translate(
   message: string,
   cookieId?: string,
 ) {
-  return fetch(
-    `${server}?${new URLSearchParams({
-      sl: source,
-      tl: target,
-      q: message,
-    }).toString()}`,
-    {
-      headers: {
-        cookie:
-          cookieId === undefined ? "" : `GOOGLE_ABUSE_EXEMPTION=${cookieId}`,
-      },
-    },
-  )
+  const fetchUrl = new URL(server);
+
+  fetchUrl.searchParams.set("sl", source);
+  fetchUrl.searchParams.set("tl", target);
+  fetchUrl.searchParams.set("q", message);
+
+  const headers = new Headers();
+
+  if (cookieId !== undefined) {
+    headers.set("cookie", `GOOGLE_ABUSE_EXEMPTION=${cookieId}`);
+  }
+
+  return fetch(fetchUrl, { headers })
     .then(async (res) => {
       if (!res.ok) {
         throw new Error(res.statusText);
@@ -29,7 +29,7 @@ export async function translate(
       return res.text();
     })
     .then((text) => {
-      const textMatch = /"result-container">(.*?)<\/div>/.exec(text);
+      const textMatch = /"result-container">(.*?)<\/div>/s.exec(text);
 
       return textMatch![1]!;
     })
