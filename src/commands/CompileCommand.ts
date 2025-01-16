@@ -396,7 +396,7 @@ export async function CompileCommand(
     for (const [language, languageGuessed] of languages.entries()) {
       const languageEntry = rawEntries.get(language);
 
-      if (languageEntry === undefined) {
+      if (!languageEntry?.has(entryKey)) {
         continue;
       }
 

@@ -10,7 +10,21 @@ export const supportedLocales = [
   "zh",
   "ko",
   "ru",
-];
+] as const;
+
+export type SupportedLocale = (typeof supportedLocales)[number];
+
+export const supportedLocalesExtended = [
+  ...supportedLocales,
+
+  "en_us",
+  "fr_us",
+  "es_us",
+
+  "zh_tw",
+] as const;
+
+export type SupportedLocaleExtended = (typeof supportedLocalesExtended)[number];
 
 export const weakLocales = ["ja", "zh", "ko"];
 export const weakLocalesFull = [
@@ -23,9 +37,7 @@ export const weakLocalesFull = [
   "ru",
 ];
 
-const guessableLocales: Array<
-  [(typeof supportedLocales)[number], ...string[]]
-> = [
+const guessableLocales: Array<[SupportedLocale, ...string[]]> = [
   ["en", "en_us", "USen", "EUen", "english", "ukenglish", "Msgus", "Msguk"],
   ["es", "es_us", "USes", "EUes", "spanish", "naspanish", "Msgsp", "Msgussp"],
   ["fr", "fr_us", "USfr", "EUfr", "french", "nafrench", "Msgfr", "Msgusfr"],

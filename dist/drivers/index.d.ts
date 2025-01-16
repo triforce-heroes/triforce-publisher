@@ -64,6 +64,27 @@ export declare const supportedSourceDrivers: {
             source: string;
         }[]>;
     };
+    udk: {
+        resourceEntries(path: string): import("../types/DataEntryRaw.js").DataEntryRaw[];
+        reassignLocales(entries: import("../types/DataEntryRaw.js").DataEntryRaw[]): {
+            [k: string]: {
+                resource: string;
+                reference: string;
+                context?: string | undefined;
+                source: string;
+            }[];
+        };
+        readonly name: string;
+        readonly pattern: string;
+        validate(_resource: Buffer): boolean;
+        entries(filesMatcher: string, engineDriver: CommandsDriver): Promise<{
+            sourceIndex: string;
+            resource: string;
+            reference: string;
+            context?: string | undefined;
+            source: string;
+        }[]>;
+    };
 };
 export declare function loadSourceDriver(name: string): Driver | undefined;
 export declare function loadEngineDriver(name: string): CommandsDriver | undefined;

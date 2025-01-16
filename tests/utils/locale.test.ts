@@ -6,11 +6,11 @@ describe("locale", () => {
   const guessLocaleTests = [
     ["en", "en"],
     ["EUen", "en"],
-    ["en_us", "en_us"],
-    ["USen", "en_us"],
-    ["jp", "jp"],
-    ["JPja", "jp"],
-    ["kr", "kr"],
+    ["en_us", "en"],
+    ["USen", "en"],
+    ["jp", "ja"],
+    ["JPja", "ja"],
+    ["kr", "ko"],
     ["unknown", undefined],
   ] as const;
 
