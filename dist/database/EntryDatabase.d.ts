@@ -5,6 +5,7 @@ export declare function getEntries(engine: string, testRun: boolean): Promise<{
     index: number;
     sourceIndex: string | null;
     translationIndex: string | null;
+    translatedBy: number | null;
     same: number | null;
     sameSources: number | null;
 }[]>;

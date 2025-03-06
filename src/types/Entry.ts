@@ -7,4 +7,6 @@ export interface Entry {
   translations?: Record<string, string>;
   sourceIndex?: string | null;
   translationIndex?: string | null;
+  translatedBy?: number | null;
+  translatedAt?: number | null;
 }

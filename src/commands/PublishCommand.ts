@@ -51,6 +51,11 @@ export async function PublishCommand(
   const sameHashes = new Map<string, number>();
   const sameSourcesHashes = new Map<string, number>();
 
+  let countDuplicates = 0;
+  let countKeepAsIs = 0;
+
+  const referenceUpdatedAt = Date.now();
+
   for (const entry of entries) {
     const publishedEntry = publishedEntries.get(entry.index);
 
@@ -84,6 +89,8 @@ export async function PublishCommand(
       translations: isSame ? {} : entry.translations,
       sourceIndex: isSame ? null : entry.sourceIndex,
       translationIndex: isSame ? null : entry.translationIndex,
+      translatedBy: entry.translatedBy ?? null,
+      translatedAt: entry.translatedAt ?? null,
       same: sameId ?? null,
       sameSources:
         sameSourcesId !== undefined && sameSourcesId !== sameId
@@ -91,7 +98,68 @@ export async function PublishCommand(
           : null,
     };
 
+    if (
+      publishableEntry.same === null &&
+      publishableEntry.sameSources === null
+    ) {
+      if (publishableEntry.translatedBy === null) {
+        if (
+          typeof publishableEntry.sourceIndex === "string" &&
+          !/[a-z]/i.test(publishableEntry.sourceIndex)
+        ) {
+          // Set `system` as translator.
+          publishableEntry.translationIndex = publishableEntry.sourceIndex;
+          publishableEntry.translatedBy = 16;
+          publishableEntry.translatedAt = referenceUpdatedAt;
+
+          countKeepAsIs++;
+        } else if (
+          publishableEntry.sources !== undefined &&
+          Object.keys(publishableEntry.sources).length === 1
+        ) {
+          // Set `system` as translator.
+          publishableEntry.translationIndex = publishableEntry.sourceIndex;
+          publishableEntry.translatedBy = 16;
+          publishableEntry.translatedAt = referenceUpdatedAt;
+
+          countKeepAsIs++;
+        } else if (
+          publishableEntry.sources !== undefined &&
+          publishableEntry.translations !== undefined
+        ) {
+          for (const [locale, source] of Object.entries(
+            publishableEntry.sources,
+          )) {
+            const locales = locale.split(",");
+
+            if (
+              locales.includes("en") &&
+              locales.includes("es") &&
+              source === publishableEntry.translations[locale]
+            ) {
+              // Set `system` as translator.
+              publishableEntry.translationIndex = publishableEntry.sourceIndex;
+              publishableEntry.translatedBy = 16;
+              publishableEntry.translatedAt = referenceUpdatedAt;
+
+              countKeepAsIs++;
+
+              break;
+            }
+          }
+        }
+      }
+    } else {
+      countDuplicates++;
+    }
+
     if (publishedEntry === undefined) {
+      publishableEntries.push(publishableEntry);
+    } else if (
+      publishableEntry.translatedBy !== null &&
+      publishableEntry.translatedBy !== publishedEntry.translatedBy &&
+      publishedEntry.translatedBy === null
+    ) {
       publishableEntries.push(publishableEntry);
     } else if (
       publishableEntry.same !== null &&
@@ -143,5 +211,21 @@ export async function PublishCommand(
     }
   }
 
-  process.stdout.write("\nDONE!\n");
+  function printCalculator(value: number, description: string) {
+    process.stdout.write(
+      `\n ${value >= 0 ? " " : "-"} ${String(value).padStart(
+        5,
+        " ",
+      )}    ${description}`,
+    );
+  }
+
+  process.stdout.write(`\nENTRIES:`);
+  printCalculator(entries.length, "TOTAL");
+  printCalculator(countDuplicates, "(Duplicates)");
+  printCalculator(countKeepAsIs, '(Keep "as-is")');
+  process.stdout.write(`\n ---------`);
+  printCalculator(entries.length - countDuplicates - countKeepAsIs, "SUBTOTAL");
+
+  process.stdout.write("\n\nDONE!\n");
 }
