@@ -1,3 +1,27 @@
+const guessableLocales: Array<[SupportedLocale, ...string[]]> = [
+  ["en", "en_us", "USen", "EUen", "english", "ukenglish", "Msgus", "Msguk"],
+  ["es", "es_us", "USes", "EUes", "spanish", "naspanish", "Msgsp", "Msgussp"],
+  ["fr", "fr_us", "USfr", "EUfr", "french", "nafrench", "Msgfr", "Msgusfr"],
+  ["it", "EUit", "italian", "Msgit"],
+  ["pt", "pt_pt", "pt_br", "EUpt", "portuguese"],
+  ["de", "EUde", "german", "Msgde"],
+  ["nl", "EUnl", "dutch"],
+  ["ja", "jp", "JPja", "japanese"],
+  [
+    "zh",
+    "ch",
+    "ch_tw",
+    "ch_zh",
+    "CNzh",
+    "TWzh",
+    "CNzh",
+    "cntraditional",
+    "cnsimplified",
+  ],
+  ["ko", "kr", "KRko", "KOkr", "korean"],
+  ["ru", "EUru", "russian"],
+];
+
 export const supportedLocales = [
   "en",
   "es",
@@ -37,33 +61,9 @@ export const weakLocalesFull = [
   "ru",
 ];
 
-const guessableLocales: Array<[SupportedLocale, ...string[]]> = [
-  ["en", "en_us", "USen", "EUen", "english", "ukenglish", "Msgus", "Msguk"],
-  ["es", "es_us", "USes", "EUes", "spanish", "naspanish", "Msgsp", "Msgussp"],
-  ["fr", "fr_us", "USfr", "EUfr", "french", "nafrench", "Msgfr", "Msgusfr"],
-  ["it", "EUit", "italian", "Msgit"],
-  ["pt", "pt_pt", "pt_br", "EUpt", "portuguese"],
-  ["de", "EUde", "german", "Msgde"],
-  ["nl", "EUnl", "dutch"],
-  ["ja", "jp", "JPja", "japanese"],
-  [
-    "zh",
-    "ch",
-    "ch_tw",
-    "ch_zh",
-    "CNzh",
-    "TWzh",
-    "CNzh",
-    "cntraditional",
-    "cnsimplified",
-  ],
-  ["ko", "kr", "KRko", "KOkr", "korean"],
-  ["ru", "EUru", "russian"],
-];
-
 export function guessLocale(language: string) {
-  return guessableLocales.find((locale) =>
-    locale.find((name) => name === language),
+  return guessableLocales.find(
+    (locale) => locale.find((name) => name === language) !== undefined,
   )?.[0];
 }
 

@@ -2,17 +2,17 @@ import { readFileSync } from "node:fs";
 
 import { extract } from "@triforce-heroes/triforce-bmg/Extract";
 
-import { DataEntryRaw } from "../types/DataEntryRaw.js";
-
 import { Driver } from "./Driver.js";
 
+import type { DataEntryRaw } from "../types/DataEntryRaw.js";
+
+// eslint-disable-next-line @typescript-eslint/naming-convention
 export const BMGDriver = new (class extends Driver {
   public constructor() {
     super("bmg", "**/*.bmg");
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  public resourceEntries(resource: string): DataEntryRaw[] {
+  public override resourceEntries(resource: string): DataEntryRaw[] {
     return extract(readFileSync(resource)).map(([reference, source]) => ({
       resource: resource.slice(resource.indexOf("\\") + 1, -4),
       reference: String(reference),

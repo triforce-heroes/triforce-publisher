@@ -1,6 +1,7 @@
-import { EntryPublishable } from "../types/EntryPublishable.js";
+import { batch, execute } from "./Database.js";
 
-import { batch, execute, Row } from "./Database.js";
+import type { Row } from "./Database.js";
+import type { EntryPublishable } from "../types/EntryPublishable.js";
 
 interface Entry {
   index: number;
@@ -17,6 +18,7 @@ export async function getEntries(engine: string, testRun: boolean) {
   const entries: Array<Row<Entry>> = [];
 
   while (true) {
+    // eslint-disable-next-line no-await-in-loop
     const requestEntries = await execute<Entry>(
       "SELECT [index], [sources], [translations], [sourceIndex], [translationIndex], [same], [sameSources] FROM [entries] WHERE [engine] = @engine LIMIT @limit OFFSET @offset",
       { engine, limit: testRun ? 50 : 1000, offset: entriesOffset },

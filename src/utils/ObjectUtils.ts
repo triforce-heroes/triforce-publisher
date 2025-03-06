@@ -1,17 +1,17 @@
 export function isSame(
-  a?: Record<string, unknown>,
-  b?: Record<string, unknown>,
+  objectA?: Record<string, unknown>,
+  objectB?: Record<string, unknown>,
 ) {
-  if (a === undefined || b === undefined) {
+  if (objectA === undefined || objectB === undefined) {
     return false;
   }
 
-  const aKeys = Object.keys(a);
-  const bKeys = Object.keys(b);
+  const aKeys = Object.keys(objectA);
+  const bKeys = Object.keys(objectB);
 
   if (aKeys.length !== bKeys.length) {
     return false;
   }
 
-  return aKeys.every((key) => a[key] === b[key]);
+  return aKeys.every((key) => objectA[key] === objectB[key]);
 }

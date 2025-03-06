@@ -1,6 +1,6 @@
 import chalk from "chalk";
 
-import { DataEntryTranslationProgress } from "../types/DataEntryTranslationProgress.js";
+import type { DataEntryTranslationProgress } from "../types/DataEntryTranslationProgress.js";
 
 export function printFailure(
   current: number,

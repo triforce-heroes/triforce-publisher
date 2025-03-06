@@ -29,9 +29,11 @@ export async function translate(
       return res.text();
     })
     .then((text) => {
-      const textMatch = /"result-container">(.*?)<\/div>/s.exec(text);
+      const textMatch = /"result-container">(?<translation>.*?)<\/div>/s.exec(
+        text,
+      );
 
-      return textMatch![1]!;
+      return textMatch!.groups!["translation"];
     })
-    .then((text) => decode(text).replaceAll("\u200B​", ""));
+    .then((text) => decode(text).replaceAll("\u200B", ""));
 }

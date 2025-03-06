@@ -1,4 +1,4 @@
-import { DataEntry } from "../types/DataEntry.js";
+import type { DataEntry } from "../types/DataEntry.js";
 
 export function getEntryKey(
   entry: Pick<DataEntry, "context" | "reference" | "resource">,

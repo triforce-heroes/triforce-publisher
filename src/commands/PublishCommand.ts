@@ -4,10 +4,11 @@ import { fatal } from "@triforce-heroes/triforce-core/Console";
 
 import { getEngine } from "../database/EngineDatabase.js";
 import { getEntries, updateEntries } from "../database/EntryDatabase.js";
-import { Entry } from "../types/Entry.js";
-import { EntryPublishable } from "../types/EntryPublishable.js";
 import { getEntryHash } from "../utils/HashUtils.js";
 import { isSame as objectIsSame } from "../utils/ObjectUtils.js";
+
+import type { Entry } from "../types/Entry.js";
+import type { EntryPublishable } from "../types/EntryPublishable.js";
 
 interface PublishCommandOptions {
   dryRun: boolean;
@@ -126,8 +127,19 @@ export async function PublishCommand(
   );
 
   if (!options.dryRun) {
-    for (let i = 0; i < publishableEntries.length; i += 1000) {
-      await updateEntries(engineName, publishableEntries.slice(i, i + 1000));
+    for (
+      let publishableEntryIndex = 0;
+      publishableEntryIndex < publishableEntries.length;
+      publishableEntryIndex += 1000
+    ) {
+      // eslint-disable-next-line no-await-in-loop
+      await updateEntries(
+        engineName,
+        publishableEntries.slice(
+          publishableEntryIndex,
+          publishableEntryIndex + 1000,
+        ),
+      );
     }
   }
 

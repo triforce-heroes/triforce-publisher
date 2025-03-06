@@ -2,10 +2,10 @@ import { readFileSync } from "node:fs";
 
 import { Language, LocalizationSystem } from "@triforce-heroes/triforce-udk";
 
-import { DataEntryRaw } from "../types/DataEntryRaw.js";
-import { SupportedLocaleExtended } from "../utils/locale.js";
-
 import { Driver } from "./Driver.js";
+
+import type { DataEntryRaw } from "../types/DataEntryRaw.js";
+import type { SupportedLocaleExtended } from "../utils/locale.js";
 
 const locales = new Map<Language, SupportedLocaleExtended>([
   [Language.ENGLISH_EUROPE, "en"],
@@ -29,13 +29,13 @@ const locales = new Map<Language, SupportedLocaleExtended>([
   [Language.KOREAN, "ko"],
 ]);
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
 export const UDKDriver = new (class extends Driver {
   public constructor() {
     super("udk", "*.udk");
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  public resourceEntries(path: string): DataEntryRaw[] {
+  public override resourceEntries(path: string): DataEntryRaw[] {
     return [
       ...new LocalizationSystem(readFileSync(path)).languages.entries(),
     ].flatMap(([language, languageData]) =>
@@ -48,8 +48,7 @@ export const UDKDriver = new (class extends Driver {
     );
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  public reassignLocales(entries: DataEntryRaw[]) {
+  public override reassignLocales(entries: DataEntryRaw[]) {
     return Object.fromEntries(
       Object.entries(Object.groupBy(entries, (entry) => entry.resource)).map(
         ([resource, resourceEntries]) => [

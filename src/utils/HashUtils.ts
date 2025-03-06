@@ -1,6 +1,6 @@
-import { Entry } from "../types/Entry.js";
-
 import { weakLocalesFull } from "./locale.js";
+
+import type { Entry } from "../types/Entry.js";
 
 export function getEntryHash({ sources }: Entry) {
   return JSON.stringify(

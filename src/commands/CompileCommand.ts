@@ -7,14 +7,17 @@ import chalk from "chalk";
 import PQueue from "p-queue";
 
 import { loadEngineDriver } from "../drivers/index.js";
-import { DataEntryTranslated } from "../types/DataEntryTranslated.js";
-import { DataEntryTranslationProgress } from "../types/DataEntryTranslationProgress.js";
-import { Entry } from "../types/Entry.js";
+import { commandDrivers } from "../types/CommandDriver.js";
+import { DropCommandDriver } from "../types/DropCommandDriver.js";
 import { getEntryKey } from "../utils/entry.js";
 import { translate } from "../utils/google.js";
 import { guessLocale, simplifyLocales, weakLocales } from "../utils/locale.js";
 import { printProgress } from "../utils/progress.js";
 import { delay } from "../utils/utils.js";
+
+import type { DataEntryTranslated } from "../types/DataEntryTranslated.js";
+import type { DataEntryTranslationProgress } from "../types/DataEntryTranslationProgress.js";
+import type { Entry } from "../types/Entry.js";
 
 interface CompileOptions {
   letters?: boolean;
@@ -53,101 +56,10 @@ function swapMap(map: Map<string, string[]>) {
   );
 }
 
-class CommandDriver {
-  public constructor(
-    public name: string,
-    public toTranslator: (message: string) => string,
-    public fromTranslator: (message: string) => string,
-  ) {}
-}
-
-class DropCommandDriver extends CommandDriver {
-  public constructor() {
-    super(
-      "drop",
-      (m) => toReplaceCommands(m, () => " ").trim(),
-      (m) => m,
-    );
-  }
-}
-
-function toReplaceCommands(
-  message: string,
-  pattern: (index: number) => string,
-) {
-  return message.replaceAll(/<(\d+)>/g, (_, match: string) =>
-    pattern(Number(match)),
-  );
-}
-
-function fromReplaceCommands(_: string, match: string) {
-  return `<${match}>`;
-}
-
-const commandDrivers: CommandDriver[] = [
-  new CommandDriver(
-    "default",
-    (m) => toReplaceCommands(m, (index) => ` <${String(index)}> `),
-    (m) => m.replaceAll(/\s*<\s*(\d+)\s*>\s*/g, fromReplaceCommands),
-  ),
-  new CommandDriver(
-    "hashtag",
-    (m) => toReplaceCommands(m, (index) => ` #${String(index)} `),
-    (m) => m.replaceAll(/\s*(?:#|n\s*º)\s*(\d+)\s*/g, fromReplaceCommands),
-  ),
-  new CommandDriver(
-    "percent",
-    (m) => toReplaceCommands(m, (index) => ` (${String(index)}%) `),
-    (m) => m.replaceAll(/\s*\(\s*(\d+)\s*%\s*\)\s*/g, fromReplaceCommands),
-  ),
-  new CommandDriver(
-    "brackets",
-    (m) => toReplaceCommands(m, (index) => ` [${String(index)}] `),
-    (m) => m.replaceAll(/\s*\[\s*(\d+)\s*\]\s*/g, fromReplaceCommands),
-  ),
-  new CommandDriver(
-    "double arrows",
-    (m) => toReplaceCommands(m, (index) => ` <<${String(index)}>> `),
-    (m) => m.replaceAll(/\s*<\s*<\s*(\d+)\s*>\s*>\s*/g, fromReplaceCommands),
-  ),
-  new CommandDriver(
-    "quotes",
-    (m) => toReplaceCommands(m, (index) => ` ("${String(index)}") `),
-    (m) => m.replaceAll(/\s*\(\s*"\s*(\d+)\s*"\s*\)\s*/g, fromReplaceCommands),
-  ),
-  new CommandDriver(
-    "hr id",
-    (m) => toReplaceCommands(m, (index) => ` <hr id="${String(index)}" /> `),
-    (m) =>
-      m.replaceAll(
-        /\s*<hr\s*id\s*=\s*"\s*(\d+)\s*"\s*\/\s*>\s*/g,
-        fromReplaceCommands,
-      ),
-  ),
-  new CommandDriver(
-    "ears",
-    (m) => toReplaceCommands(m, (index) => ` )<${String(index)}>( `),
-    (m) => m.replaceAll(/\s*\)\s*<\s*(\d+)\s*>\s*\(\s*/g, fromReplaceCommands),
-  ),
-  new CommandDriver(
-    "eyes",
-    (m) => toReplaceCommands(m, (index) => ` (.)<${String(index)}>(.) `),
-    (m) =>
-      m.replaceAll(
-        /\s*\(\s*\.\s*\)\s*<\s*(\d+)\s*>\s*\(\s*\.\s*\)\s*/g,
-        fromReplaceCommands,
-      ),
-  ),
-  new CommandDriver(
-    "breaks",
-    (m) => toReplaceCommands(m, (index) => `\r\n<${String(index)}>\r\n`),
-    (m) => m.replaceAll(/\s*<\s*(\d+)\s*>\s*/g, fromReplaceCommands),
-  ),
-  new DropCommandDriver(),
-];
-
 function getCommandsOrder(message: string) {
-  return [...message.matchAll(/<(\d+)>/g)].map((match) => Number(match[1]));
+  return [...message.matchAll(/<(?<command>\d+)>/g)].map((match) =>
+    Number(match.groups!["command"]),
+  );
 }
 
 const smallFixes = [
@@ -194,7 +106,7 @@ export async function CompileCommand(
 
   const rawEntries = new Map<string, Map<string, DataEntryTranslationPair>>();
 
-  for await (const [language, languageGuessed] of languages.entries()) {
+  for (const [language, languageGuessed] of languages.entries()) {
     const entries = loadEntries(language);
 
     if (options?.translate === undefined) {
@@ -220,8 +132,9 @@ export async function CompileCommand(
 
       let translatedEntries = 0;
 
-      let translatedLast: DataEntryTranslationProgress | undefined;
-      let translatedLastProgress: DataEntryTranslationProgress | undefined;
+      let translatedLast: DataEntryTranslationProgress | undefined = undefined;
+      let translatedLastProgress: DataEntryTranslationProgress | undefined =
+        undefined;
 
       const translationProgressInterval = setInterval(() => {
         if (translatedLast !== translatedLastProgress) {
@@ -235,7 +148,6 @@ export async function CompileCommand(
         }
       }, 1000);
 
-      // eslint-disable-next-line no-inner-declarations
       function saveCache() {
         process.stdout.write(chalk.greenBright("  CACHE SAVED\n\n"));
 
@@ -255,19 +167,21 @@ export async function CompileCommand(
         // eslint-disable-next-line @typescript-eslint/no-loop-func
         void queue.add(async () => {
           const commands = new Entries(
-            engineDriverInstance.parse(entry.source).entries.map((e) => {
-              if (e instanceof EntryText) {
-                let { text } = e;
+            engineDriverInstance
+              .parse(entry.source)
+              .entries.map((entryText) => {
+                if (entryText instanceof EntryText) {
+                  let { text } = entryText;
 
-                for (const [from, to] of smallFixes) {
-                  text = text.replaceAll(from, to);
+                  for (const [from, to] of smallFixes) {
+                    text = text.replaceAll(from, to);
+                  }
+
+                  return new EntryText(text);
                 }
 
-                return new EntryText(text);
-              }
-
-              return e;
-            }),
+                return entryText;
+              }),
           );
           const commandsPreCompressed = commands.toCompressed();
           const commandsCompressed = commandsPreCompressed.toCompressed();
@@ -280,7 +194,7 @@ export async function CompileCommand(
           } else {
             const commandsOrdering = getCommandsOrder(commandsText);
 
-            retry: for (let i = 0; i < 3; i++) {
+            retry: for (let retryIndex = 0; retryIndex < 3; retryIndex++) {
               for (const commandDriver of commandDrivers) {
                 entryTranslation = null;
 
@@ -289,6 +203,7 @@ export async function CompileCommand(
                 }
 
                 try {
+                  // eslint-disable-next-line no-await-in-loop
                   entryTranslation = await translate(
                     languageGuessed,
                     options.translate!,
@@ -300,7 +215,8 @@ export async function CompileCommand(
                     fatal(`Too many requests: requires --cookie-id`);
                   }
 
-                  await delay(1000 * i);
+                  // eslint-disable-next-line no-await-in-loop
+                  await delay(1000 * retryIndex);
 
                   continue retry;
                 }
@@ -339,7 +255,6 @@ export async function CompileCommand(
 
           translatedEntries++;
 
-          // eslint-disable-next-line require-atomic-updates
           entry.translation = commandsPreCompressed.fromCompressed(
             commandsCompressed.fromCompressed(
               entryTranslation ?? "",
@@ -359,6 +274,7 @@ export async function CompileCommand(
         });
       }
 
+      // eslint-disable-next-line no-await-in-loop
       await queue.onIdle();
 
       clearInterval(saveCacheInterval);
@@ -387,7 +303,7 @@ export async function CompileCommand(
 
   const letters = new Set<number>();
 
-  for await (const entry of entries.values()) {
+  for (const entry of entries.values()) {
     const entryKey = getEntryKey(entry);
 
     const entrySources = new Map<string, string[]>();
@@ -396,7 +312,7 @@ export async function CompileCommand(
     for (const [language, languageGuessed] of languages.entries()) {
       const languageEntry = rawEntries.get(language);
 
-      if (!languageEntry?.has(entryKey)) {
+      if (languageEntry?.has(entryKey) !== true) {
         continue;
       }
 
@@ -407,7 +323,10 @@ export async function CompileCommand(
       } else {
         entrySources.set(source, [language]);
 
-        if (options?.letters && !weakLocales.includes(languageGuessed)) {
+        if (
+          options?.letters === true &&
+          !weakLocales.includes(languageGuessed)
+        ) {
           const sourceCommands = engineDriverInstance
             .parse(source)
             .toCompressed()
@@ -425,7 +344,7 @@ export async function CompileCommand(
         } else {
           entryTranslations.set(translation!, [language]);
 
-          if (options.letters) {
+          if (options.letters === true) {
             const translationCommands = engineDriverInstance
               .parse(translation!)
               .toCompressed()
@@ -444,6 +363,7 @@ export async function CompileCommand(
       ?.get(entryKey)?.[2];
 
     const publishable: Entry = {
+      // eslint-disable-next-line no-await-in-loop
       index: await secureHash(Buffer.from(entryKey)),
       resource: entry.resource,
       reference: entry.reference,
@@ -464,7 +384,7 @@ export async function CompileCommand(
     publishables.push(publishable);
   }
 
-  if (options?.uniques) {
+  if (options?.uniques === true) {
     const uniques = new Set<string>();
 
     for (const publishable of publishables) {
@@ -476,10 +396,10 @@ export async function CompileCommand(
     writeFileSync("./uniques.json", JSON.stringify([...uniques], null, 2));
   }
 
-  if (options?.letters) {
+  if (options?.letters === true) {
     writeFileSync(
       "./letters.txt",
-      [...letters].sort((a, b) => a - b).join(","),
+      [...letters].sort((letterA, letterB) => letterA - letterB).join(","),
     );
   }
 

@@ -1,9 +1,22 @@
-import { Client, createClient, InArgs } from "@libsql/client";
+import { createClient } from "@libsql/client";
 // eslint-disable-next-line import/no-unassigned-import
 import "dotenv/config";
 
+import type { Client, InArgs } from "@libsql/client";
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Interface = Record<string, any>;
+
+let dbInstance: Client | undefined = undefined;
+
+function db() {
+  dbInstance ??= createClient({
+    url: process.env.TURSO_DATABASE_URL,
+    authToken: process.env.TURSO_AUTH_TOKEN,
+  });
+
+  return dbInstance;
+}
 
 export type Row<T extends Interface> = {
   [K in keyof T]: T[K] extends infer N
@@ -12,19 +25,6 @@ export type Row<T extends Interface> = {
       : N
     : never;
 };
-
-let dbInstance: Client | undefined;
-
-function db() {
-  if (!dbInstance) {
-    dbInstance = createClient({
-      url: process.env.TURSO_DATABASE_URL,
-      authToken: process.env.TURSO_AUTH_TOKEN,
-    });
-  }
-
-  return dbInstance;
-}
 
 export async function execute<T extends Interface>(
   sql: string,

@@ -4,22 +4,25 @@ import { validate } from "@triforce-heroes/triforce-koei";
 import { transpile } from "@triforce-heroes/triforce-koei/Transpile";
 
 import { meta } from "../metas/HWAC.js";
-import { DataEntryRaw } from "../types/DataEntryRaw.js";
 
 import { Driver } from "./Driver.js";
 
+import type { DataEntryRaw } from "../types/DataEntryRaw.js";
+
+// eslint-disable-next-line @typescript-eslint/naming-convention
 export const KOEIDriver = new (class extends Driver {
   public constructor() {
     super("koei", "*.koei");
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  public validate(resource: Buffer) {
+  public override validate(resource: Buffer) {
     return validate(resource);
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  public resourceEntries(path: string, resource: Buffer): DataEntryRaw[] {
+  public override resourceEntries(
+    path: string,
+    resource: Buffer,
+  ): DataEntryRaw[] {
     const [index] = basename(path).slice(0, -5).split("_", 3) as [string];
 
     return transpile(resource)[1].map((entry, entryIndex) => ({
@@ -29,8 +32,7 @@ export const KOEIDriver = new (class extends Driver {
     }));
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  public reassignLocales(entries: DataEntryRaw[]) {
+  public override reassignLocales(entries: DataEntryRaw[]) {
     const metaLocales = meta.locales;
 
     const locales: Record<string, DataEntryRaw[]> = Object.fromEntries(

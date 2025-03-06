@@ -1,11 +1,11 @@
 import { readFileSync } from "node:fs";
 
-import { Driver as CommandsDriver } from "@triforce-heroes/triforce-commands";
 import { normalize } from "@triforce-heroes/triforce-core/Path";
 import { glob } from "glob";
 import { minimatch } from "minimatch";
 
-import { DataEntryRaw } from "../types/DataEntryRaw.js";
+import type { DataEntryRaw } from "../types/DataEntryRaw.js";
+import type { Driver as CommandsDriver } from "@triforce-heroes/triforce-commands";
 
 interface Resource {
   path: string;
@@ -18,12 +18,11 @@ export abstract class Driver {
     public readonly pattern: string,
   ) {}
 
-  // eslint-disable-next-line unused-imports/no-unused-vars, @typescript-eslint/no-unused-vars, class-methods-use-this
+  // eslint-disable-next-line @typescript-eslint/class-methods-use-this
   public validate(_resource: Buffer) {
     return true;
   }
 
-  // eslint-disable-next-line class-methods-use-this
   public async entries(filesMatcher: string, engineDriver: CommandsDriver) {
     return (await glob(normalize(filesMatcher)))
       .filter((file) => minimatch(file, this.pattern, { matchBase: true }))
@@ -33,7 +32,7 @@ export abstract class Driver {
         return this.validate(resource) ? { path, resource } : undefined;
       })
       .filter((resource) => resource !== undefined)
-      .sort((a, b) => a.path.localeCompare(b.path))
+      .sort((pathA, pathB) => pathA.path.localeCompare(pathB.path))
       .flatMap((resource) =>
         this.resourceEntries(resource.path, resource.resource),
       )
@@ -43,7 +42,7 @@ export abstract class Driver {
       }));
   }
 
-  // eslint-disable-next-line class-methods-use-this
+  // eslint-disable-next-line @typescript-eslint/class-methods-use-this
   public reassignLocales(
     entries: DataEntryRaw[],
   ): Record<string, DataEntryRaw[]> {

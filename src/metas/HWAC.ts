@@ -1,4 +1,4 @@
-import { Meta } from "../types/Meta.js";
+import type { Meta } from "../types/Meta.js";
 
 const meta: Meta = {
   locales: [
