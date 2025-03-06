@@ -1,5 +1,5 @@
-import { Driver as CommandsDriver } from "@triforce-heroes/triforce-commands";
-import { Driver } from "./Driver.js";
+import type { Driver } from "./Driver.js";
+import type { Driver as CommandsDriver } from "@triforce-heroes/triforce-commands";
 export declare const supportedSourceDrivers: {
     bmg: {
         resourceEntries(resource: string): import("../types/DataEntryRaw.js").DataEntryRaw[];
@@ -63,6 +63,20 @@ export declare const supportedSourceDrivers: {
             context?: string | undefined;
             source: string;
         }[]>;
+    };
+    pkla: {
+        resourceEntries(path: string): import("../types/DataEntryRaw.js").DataEntryRaw[];
+        readonly name: string;
+        readonly pattern: string;
+        validate(_resource: Buffer): boolean;
+        entries(filesMatcher: string, engineDriver: CommandsDriver): Promise<{
+            sourceIndex: string;
+            resource: string;
+            reference: string;
+            context?: string | undefined;
+            source: string;
+        }[]>;
+        reassignLocales(entries: import("../types/DataEntryRaw.js").DataEntryRaw[]): Record<string, import("../types/DataEntryRaw.js").DataEntryRaw[]>;
     };
     udk: {
         resourceEntries(path: string): import("../types/DataEntryRaw.js").DataEntryRaw[];

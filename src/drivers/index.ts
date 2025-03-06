@@ -4,6 +4,7 @@ import {
   TPHDDriver as TPHD,
   ZTFHDriver as ZTFH,
   NLOCDriver as NLOC,
+  PKLADriver as PKLA,
   UDKDriver as UDK,
 } from "@triforce-heroes/triforce-commands";
 
@@ -11,6 +12,7 @@ import { BMGDriver } from "./BMGDriver.js";
 import { KOEIDriver } from "./KOEIDriver.js";
 import { MSBTDriver } from "./MSBTDriver.js";
 import { NLOCDriver } from "./NLOCDriver.js";
+import { PKLADriver } from "./PKLADriver.js";
 import { UDKDriver } from "./UDKDriver.js";
 
 import type { Driver } from "./Driver.js";
@@ -19,10 +21,9 @@ import type { Driver as CommandsDriver } from "@triforce-heroes/triforce-command
 type SupportedSourceDrivers = keyof typeof supportedSourceDrivers;
 
 const enginesDrivers = Object.fromEntries(
-  Object.entries({ HWAC, RAW, TPHD, ZTFH, NLOC, UDK }).map(([key, value]) => [
-    key.toLowerCase(),
-    value,
-  ]),
+  Object.entries({ HWAC, RAW, TPHD, ZTFH, NLOC, PKLA, UDK }).map(
+    ([key, value]) => [key.toLowerCase(), value],
+  ),
 );
 
 export const supportedSourceDrivers = {
@@ -30,6 +31,7 @@ export const supportedSourceDrivers = {
   msbt: MSBTDriver,
   koei: KOEIDriver,
   nloc: NLOCDriver,
+  pkla: PKLADriver,
   udk: UDKDriver,
 };
 

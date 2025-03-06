@@ -7,8 +7,7 @@ import chalk from "chalk";
 import PQueue from "p-queue";
 
 import { loadEngineDriver } from "../drivers/index.js";
-import { commandDrivers } from "../types/CommandDriver.js";
-import { DropCommandDriver } from "../types/DropCommandDriver.js";
+import { commandDrivers, DropCommandDriver } from "../types/CommandDriver.js";
 import { getEntryKey } from "../utils/entry.js";
 import { translate } from "../utils/google.js";
 import { guessLocale, simplifyLocales, weakLocales } from "../utils/locale.js";

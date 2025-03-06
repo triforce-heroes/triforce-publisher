@@ -1,4 +1,4 @@
-import { EntryPublishable } from "../types/EntryPublishable.js";
+import type { EntryPublishable } from "../types/EntryPublishable.js";
 export declare function getEntries(engine: string, testRun: boolean): Promise<{
     sources: Record<string, string>;
     translations: Record<string, string>;

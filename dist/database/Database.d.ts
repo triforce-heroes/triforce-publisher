@@ -1,5 +1,5 @@
-import { InArgs } from "@libsql/client";
 import "dotenv/config";
+import type { InArgs } from "@libsql/client";
 type Interface = Record<string, any>;
 export type Row<T extends Interface> = {
     [K in keyof T]: T[K] extends infer N ? N extends object | [] ? string : N : never;

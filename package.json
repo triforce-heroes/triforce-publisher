@@ -37,19 +37,20 @@
     "@triforce-heroes/triforce-koei": "github:triforce-heroes/triforce-koei",
     "@triforce-heroes/triforce-msbt": "github:triforce-heroes/triforce-msbt",
     "@triforce-heroes/triforce-nloc": "github:triforce-heroes/triforce-nloc",
+    "@triforce-heroes/triforce-pkla": "git+https://github.com/triforce-heroes/triforce-pkla.git",
     "@triforce-heroes/triforce-udk": "github:triforce-heroes/triforce-udk",
     "@types/node": "^22.13.9",
     "@vitest/eslint-plugin": "^1.1.36",
     "chalk": "^5.4.1",
     "commander": "^13.1.0",
     "dotenv": "^16.4.7",
+    "eslint": "^9.21.0",
     "eslint-import-resolver-typescript": "^3.8.3",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-promise": "^7.2.1",
     "eslint-plugin-regexp": "^2.7.0",
     "eslint-plugin-unicorn": "^57.0.0",
     "eslint-plugin-unused-imports": "^4.1.4",
-    "eslint": "^9.21.0",
     "fast-equals": "^5.2.2",
     "glob": "^11.0.1",
     "globals": "^16.0.0",
@@ -58,8 +59,8 @@
     "p-queue": "^8.1.0",
     "rimraf": "^6.0.1",
     "tsx": "^4.19.3",
-    "typescript-eslint": "^8.26.0",
     "typescript": "^5.8.2",
-    "vitest": "^3.0.7"
+    "typescript-eslint": "^8.26.0",
+    "vitest": "^3.0.8"
   }
 }

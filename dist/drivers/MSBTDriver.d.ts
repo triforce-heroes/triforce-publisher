@@ -1,4 +1,4 @@
-import { DataEntryRaw } from "../types/DataEntryRaw.js";
+import type { DataEntryRaw } from "../types/DataEntryRaw.js";
 export declare const MSBTDriver: {
     resourceEntries(resource: string): DataEntryRaw[];
     readonly name: string;

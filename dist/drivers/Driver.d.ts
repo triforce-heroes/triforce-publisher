@@ -1,5 +1,5 @@
-import { Driver as CommandsDriver } from "@triforce-heroes/triforce-commands";
-import { DataEntryRaw } from "../types/DataEntryRaw.js";
+import type { DataEntryRaw } from "../types/DataEntryRaw.js";
+import type { Driver as CommandsDriver } from "@triforce-heroes/triforce-commands";
 export declare abstract class Driver {
     readonly name: string;
     readonly pattern: string;

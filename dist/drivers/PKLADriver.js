@@ -1,0 +1,1 @@
+import{readFileSync as r}from"fs";import{basename as e}from"path";import{extract as o}from"@triforce-heroes/triforce-pkla";import{Driver as t}from"./Driver.js";export const PKLADriver=new class extends t{constructor(){super("dat","*.dat")}resourceEntries(t){return o(r(t),r(`${t.slice(0,-4)}.tbl`)).map(r=>({resource:e(t,".dat"),reference:r.name,source:r.message}))}};

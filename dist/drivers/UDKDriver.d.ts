@@ -1,4 +1,4 @@
-import { DataEntryRaw } from "../types/DataEntryRaw.js";
+import type { DataEntryRaw } from "../types/DataEntryRaw.js";
 export declare const UDKDriver: {
     resourceEntries(path: string): DataEntryRaw[];
     reassignLocales(entries: DataEntryRaw[]): {

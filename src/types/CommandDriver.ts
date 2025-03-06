@@ -1,5 +1,4 @@
-import { DropCommandDriver } from "./DropCommandDriver.js";
-
+// eslint-disable-next-line max-classes-per-file
 function fromReplaceCommands(_: string, match: string) {
   return `<${match}>`;
 }
@@ -19,6 +18,16 @@ export function toReplaceCommands(
   return message.replaceAll(/<(?<command>\d+)>/g, (_, match: string) =>
     pattern(Number(match)),
   );
+}
+
+export class DropCommandDriver extends CommandDriver {
+  public constructor() {
+    super(
+      "drop",
+      (message) => toReplaceCommands(message, () => " ").trim(),
+      (message) => message,
+    );
+  }
 }
 
 export const commandDrivers = [
