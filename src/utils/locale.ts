@@ -6,12 +6,16 @@ const guessableLocales: Array<[SupportedLocale, ...string[]]> = [
   ["pt", "pt_pt", "pt_br", "EUpt", "portuguese"],
   ["de", "EUde", "german", "Msgde"],
   ["nl", "EUnl", "dutch"],
-  ["ja", "jp", "JPja", "japanese"],
+  ["ja", "jp", "JPja", "ja_Kanji", "japanese"],
   [
-    "zh",
     "ch",
     "ch_tw",
+    "ch_TW",
     "ch_zh",
+    "ch_ZH",
+    "zh",
+    "zh_tw",
+    "tw",
     "CNzh",
     "TWzh",
     "CNzh",
@@ -31,7 +35,7 @@ export const supportedLocales = [
   "de",
   "nl",
   "ja",
-  "zh",
+  "ch",
   "ko",
   "ru",
 ] as const;
@@ -45,6 +49,7 @@ export const supportedLocalesExtended = [
   "fr_us",
   "es_us",
 
+  "zh",
   "zh_tw",
 ] as const;
 

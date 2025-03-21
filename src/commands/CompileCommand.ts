@@ -110,7 +110,7 @@ export async function CompileCommand(
 
     if (options?.translate === undefined) {
       rawEntries.set(
-        languageGuessed,
+        language,
         new Map<string, DataEntryTranslationPair>(
           entries.map((entry) => [getEntryKey(entry), [entry.source]]),
         ),
@@ -374,7 +374,8 @@ export async function CompileCommand(
         entryTranslationIndex !== undefined && {
           translationIndex: entryTranslationIndex,
         }),
-      sources: swapMap(entrySources),
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
+      sources: Object.fromEntries(entrySources.entries()) as unknown as any,
       ...(options?.translate !== undefined && {
         translations: swapMap(entryTranslations),
       }),

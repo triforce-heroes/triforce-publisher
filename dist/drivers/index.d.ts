@@ -65,7 +65,7 @@ export declare const supportedSourceDrivers: {
         }[]>;
     };
     pkla: {
-        resourceEntries(path: string): import("../types/DataEntryRaw.js").DataEntryRaw[];
+        resourceEntries(path: string, resource: Buffer): import("../types/DataEntryRaw.js").DataEntryRaw[];
         readonly name: string;
         readonly pattern: string;
         validate(_resource: Buffer): boolean;
