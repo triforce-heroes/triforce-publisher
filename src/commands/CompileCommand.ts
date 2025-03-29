@@ -308,7 +308,7 @@ export async function CompileCommand(
     const entrySources = new Map<string, string[]>();
     const entryTranslations = new Map<string, string[]>();
 
-    for (const [language, languageGuessed] of languages.entries()) {
+    for (const language of languages.keys()) {
       const languageEntry = rawEntries.get(language);
 
       if (languageEntry?.has(entryKey) !== true) {
@@ -322,10 +322,7 @@ export async function CompileCommand(
       } else {
         entrySources.set(source, [language]);
 
-        if (
-          options?.letters === true &&
-          !weakLocales.includes(languageGuessed)
-        ) {
+        if (options?.letters === true) {
           const sourceCommands = engineDriverInstance
             .parse(source)
             .toCompressed()
