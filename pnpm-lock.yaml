@@ -34,7 +34,7 @@ importers:
         version: https://codeload.github.com/triforce-heroes/triforce-bmg/tar.gz/83e12c67f69595bb709b8608a5b0266f276d5d68
       '@triforce-heroes/triforce-commands':
         specifier: github:triforce-heroes/triforce-commands
-        version: https://codeload.github.com/triforce-heroes/triforce-commands/tar.gz/890e44bc49ff9f367ff48c485747723de82e344b
+        version: https://codeload.github.com/triforce-heroes/triforce-commands/tar.gz/b989bb18071f3ae2962a04cf9ac337d3db976e7b
       '@triforce-heroes/triforce-core':
         specifier: github:triforce-heroes/triforce-core
         version: https://codeload.github.com/triforce-heroes/triforce-core/tar.gz/ef71047d93d5877c3a56383b164e15b722bb5203
@@ -43,7 +43,7 @@ importers:
         version: https://codeload.github.com/triforce-heroes/triforce-koei/tar.gz/81c6c294673d4bd1fe8c3ac3659d913af1eca02a
       '@triforce-heroes/triforce-lbrs':
         specifier: github:triforce-heroes/triforce-lbrs
-        version: https://codeload.github.com/triforce-heroes/triforce-lbrs/tar.gz/a208fa6e9ec604fbad3efe97d1bf1373bc78d688(@typescript-eslint/eslint-plugin@8.29.1(@typescript-eslint/parser@8.29.1(eslint@9.24.0(jiti@1.21.7))(typescript@5.8.3))(eslint@9.24.0(jiti@1.21.7))(typescript@5.8.3))(@typescript-eslint/parser@8.29.1(eslint@9.24.0(jiti@1.21.7))(typescript@5.8.3))(jiti@1.21.7)(tsx@4.19.3)(vite@6.2.6(@types/node@22.14.1)(jiti@1.21.7)(tsx@4.19.3)(yaml@2.7.0))(yaml@2.7.0)
+        version: https://codeload.github.com/triforce-heroes/triforce-lbrs/tar.gz/767aae7c0fc43c0309f0d513197ac8ded6e6dd3a(@typescript-eslint/eslint-plugin@8.29.1(@typescript-eslint/parser@8.29.1(eslint@9.24.0(jiti@1.21.7))(typescript@5.8.3))(eslint@9.24.0(jiti@1.21.7))(typescript@5.8.3))(@typescript-eslint/parser@8.29.1(eslint@9.24.0(jiti@1.21.7))(typescript@5.8.3))(jiti@1.21.7)(tsx@4.19.3)(vite@6.2.6(@types/node@22.14.1)(jiti@1.21.7)(tsx@4.19.3)(yaml@2.7.0))(yaml@2.7.0)
       '@triforce-heroes/triforce-msbt':
         specifier: github:triforce-heroes/triforce-msbt
         version: https://codeload.github.com/triforce-heroes/triforce-msbt/tar.gz/00426316e78b7756fb45324dee844532b3fe2e09
@@ -813,8 +813,8 @@ packages:
     resolution: {tarball: https://codeload.github.com/triforce-heroes/triforce-bmg/tar.gz/83e12c67f69595bb709b8608a5b0266f276d5d68}
     version: 1.0.0
 
-  '@triforce-heroes/triforce-commands@https://codeload.github.com/triforce-heroes/triforce-commands/tar.gz/890e44bc49ff9f367ff48c485747723de82e344b':
-    resolution: {tarball: https://codeload.github.com/triforce-heroes/triforce-commands/tar.gz/890e44bc49ff9f367ff48c485747723de82e344b}
+  '@triforce-heroes/triforce-commands@https://codeload.github.com/triforce-heroes/triforce-commands/tar.gz/b989bb18071f3ae2962a04cf9ac337d3db976e7b':
+    resolution: {tarball: https://codeload.github.com/triforce-heroes/triforce-commands/tar.gz/b989bb18071f3ae2962a04cf9ac337d3db976e7b}
     version: 1.0.0
     hasBin: true
 
@@ -826,8 +826,8 @@ packages:
     resolution: {tarball: https://codeload.github.com/triforce-heroes/triforce-koei/tar.gz/81c6c294673d4bd1fe8c3ac3659d913af1eca02a}
     version: 1.0.0
 
-  '@triforce-heroes/triforce-lbrs@https://codeload.github.com/triforce-heroes/triforce-lbrs/tar.gz/a208fa6e9ec604fbad3efe97d1bf1373bc78d688':
-    resolution: {tarball: https://codeload.github.com/triforce-heroes/triforce-lbrs/tar.gz/a208fa6e9ec604fbad3efe97d1bf1373bc78d688}
+  '@triforce-heroes/triforce-lbrs@https://codeload.github.com/triforce-heroes/triforce-lbrs/tar.gz/767aae7c0fc43c0309f0d513197ac8ded6e6dd3a':
+    resolution: {tarball: https://codeload.github.com/triforce-heroes/triforce-lbrs/tar.gz/767aae7c0fc43c0309f0d513197ac8ded6e6dd3a}
     version: 1.0.0
 
   '@triforce-heroes/triforce-msbt@https://codeload.github.com/triforce-heroes/triforce-msbt/tar.gz/00426316e78b7756fb45324dee844532b3fe2e09':
@@ -3631,7 +3631,7 @@ snapshots:
 
   '@triforce-heroes/triforce-bmg@https://codeload.github.com/triforce-heroes/triforce-bmg/tar.gz/83e12c67f69595bb709b8608a5b0266f276d5d68': {}
 
-  '@triforce-heroes/triforce-commands@https://codeload.github.com/triforce-heroes/triforce-commands/tar.gz/890e44bc49ff9f367ff48c485747723de82e344b': {}
+  '@triforce-heroes/triforce-commands@https://codeload.github.com/triforce-heroes/triforce-commands/tar.gz/b989bb18071f3ae2962a04cf9ac337d3db976e7b': {}
 
   '@triforce-heroes/triforce-core@https://codeload.github.com/triforce-heroes/triforce-core/tar.gz/ef71047d93d5877c3a56383b164e15b722bb5203':
     dependencies:
@@ -3641,7 +3641,7 @@ snapshots:
 
   '@triforce-heroes/triforce-koei@https://codeload.github.com/triforce-heroes/triforce-koei/tar.gz/81c6c294673d4bd1fe8c3ac3659d913af1eca02a': {}
 
-  '@triforce-heroes/triforce-lbrs@https://codeload.github.com/triforce-heroes/triforce-lbrs/tar.gz/a208fa6e9ec604fbad3efe97d1bf1373bc78d688(@typescript-eslint/eslint-plugin@8.29.1(@typescript-eslint/parser@8.29.1(eslint@9.24.0(jiti@1.21.7))(typescript@5.8.3))(eslint@9.24.0(jiti@1.21.7))(typescript@5.8.3))(@typescript-eslint/parser@8.29.1(eslint@9.24.0(jiti@1.21.7))(typescript@5.8.3))(jiti@1.21.7)(tsx@4.19.3)(vite@6.2.6(@types/node@22.14.1)(jiti@1.21.7)(tsx@4.19.3)(yaml@2.7.0))(yaml@2.7.0)':
+  '@triforce-heroes/triforce-lbrs@https://codeload.github.com/triforce-heroes/triforce-lbrs/tar.gz/767aae7c0fc43c0309f0d513197ac8ded6e6dd3a(@typescript-eslint/eslint-plugin@8.29.1(@typescript-eslint/parser@8.29.1(eslint@9.24.0(jiti@1.21.7))(typescript@5.8.3))(eslint@9.24.0(jiti@1.21.7))(typescript@5.8.3))(@typescript-eslint/parser@8.29.1(eslint@9.24.0(jiti@1.21.7))(typescript@5.8.3))(jiti@1.21.7)(tsx@4.19.3)(vite@6.2.6(@types/node@22.14.1)(jiti@1.21.7)(tsx@4.19.3)(yaml@2.7.0))(yaml@2.7.0)':
     dependencies:
       '@rheactor/eslint-config-rheactor': https://codeload.github.com/rheactor/eslint-config-rheactor/tar.gz/b74192ba8afc0ebafc5f29594de29c4361771dd3(@typescript-eslint/eslint-plugin@8.29.1(@typescript-eslint/parser@8.29.1(eslint@9.24.0(jiti@1.21.7))(typescript@5.8.3))(eslint@9.24.0(jiti@1.21.7))(typescript@5.8.3))(@typescript-eslint/parser@8.29.1(eslint@9.24.0(jiti@1.21.7))(typescript@5.8.3))(jiti@1.21.7)(vitest@3.1.1(@types/node@22.14.1)(jiti@1.21.7)(tsx@4.19.3)(yaml@2.7.0))
       '@swc/cli': 0.6.0(@swc/core@1.11.20)

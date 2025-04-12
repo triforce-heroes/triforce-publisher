@@ -10,6 +10,7 @@ import {
 
 import { BMGDriver } from "./BMGDriver.js";
 import { KOEIDriver } from "./KOEIDriver.js";
+import { LBRSDriver } from "./LBRSDriver.js";
 import { MSBTDriver } from "./MSBTDriver.js";
 import { NLOCDriver } from "./NLOCDriver.js";
 import { PKLADriver } from "./PKLADriver.js";
@@ -28,8 +29,9 @@ const enginesDrivers = Object.fromEntries(
 
 export const supportedSourceDrivers = {
   bmg: BMGDriver,
-  msbt: MSBTDriver,
   koei: KOEIDriver,
+  lbrs: LBRSDriver,
+  msbt: MSBTDriver,
   nloc: NLOCDriver,
   pkla: PKLADriver,
   udk: UDKDriver,

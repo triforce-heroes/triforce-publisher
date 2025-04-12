@@ -5,11 +5,5 @@ export declare const KOEIDriver: {
     reassignLocales(entries: DataEntryRaw[]): Record<string, DataEntryRaw[]>;
     readonly name: string;
     readonly pattern: string;
-    entries(filesMatcher: string, engineDriver: import("@triforce-heroes/triforce-commands").Driver): Promise<{
-        sourceIndex: string;
-        resource: string;
-        reference: string;
-        context?: string | undefined;
-        source: string;
-    }[]>;
+    entries(filesMatcher: string): Promise<DataEntryRaw[]>;
 };

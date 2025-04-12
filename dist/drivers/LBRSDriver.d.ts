@@ -1,11 +1,10 @@
 import type { DataEntryRaw } from "../types/DataEntryRaw.js";
-export declare const NLOCDriver: {
-    resourceEntries(resource: string): DataEntryRaw[];
+export declare const LBRSDriver: {
+    resourceEntries(_path: string, resource: Buffer): DataEntryRaw[];
     reassignLocales(entries: DataEntryRaw[]): {
         [k: string]: {
             resource: string;
             reference: string;
-            context?: string | undefined;
             source: string;
         }[];
     };

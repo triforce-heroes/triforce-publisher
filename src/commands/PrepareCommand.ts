@@ -2,10 +2,9 @@ import { writeFileSync } from "node:fs";
 
 import { fatal } from "@triforce-heroes/triforce-core/Console";
 
-import { loadEngineDriver, loadSourceDriver } from "../drivers/index.js";
+import { loadSourceDriver } from "../drivers/index.js";
 
 export async function PrepareCommand(
-  engineDriver: string,
   sourceDriver: string,
   filesMatcher: string,
 ) {
@@ -15,18 +14,9 @@ export async function PrepareCommand(
     fatal(`Unsupported source driver: ${sourceDriver}`);
   }
 
-  const engineDriverInstance = loadEngineDriver(engineDriver);
-
-  if (engineDriverInstance === undefined) {
-    fatal(`Unsupported engine driver: ${engineDriver}`);
-  }
-
   process.stdout.write("Compiling entries... ");
 
-  const rawEntries = await sourceDriverInstance.entries(
-    filesMatcher,
-    engineDriverInstance,
-  );
+  const rawEntries = await sourceDriverInstance.entries(filesMatcher);
 
   process.stdout.write("OK\n");
 

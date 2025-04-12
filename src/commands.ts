@@ -10,7 +10,6 @@ program
   .description(
     "prepare a single language source by generating entries.json files",
   )
-  .argument("<engine driver>", 'engine driver to be used (eg. "ZTFH")')
   .argument("<source driver>", 'source driver to be used (eg. "MSBT")')
   .argument("<files>", "glob-alike files to be included")
   .action(PrepareCommand);

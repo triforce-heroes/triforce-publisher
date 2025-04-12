@@ -1,1 +1,1 @@
-export declare function PrepareCommand(engineDriver: string, sourceDriver: string, filesMatcher: string): Promise<void>;
+export declare function PrepareCommand(sourceDriver: string, filesMatcher: string): Promise<void>;

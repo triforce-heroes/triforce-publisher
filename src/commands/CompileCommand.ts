@@ -385,7 +385,7 @@ export async function CompileCommand(
     const uniques = new Set<string>();
 
     for (const publishable of publishables) {
-      for (const source of Object.values(publishable.sources!)) {
+      for (const source of Object.keys(publishable.sources!)) {
         uniques.add(source);
       }
     }

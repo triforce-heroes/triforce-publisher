@@ -5,7 +5,6 @@ import { glob } from "glob";
 import { minimatch } from "minimatch";
 
 import type { DataEntryRaw } from "../types/DataEntryRaw.js";
-import type { Driver as CommandsDriver } from "@triforce-heroes/triforce-commands";
 
 interface Resource {
   path: string;
@@ -23,7 +22,7 @@ export abstract class Driver {
     return true;
   }
 
-  public async entries(filesMatcher: string, engineDriver: CommandsDriver) {
+  public async entries(filesMatcher: string) {
     return (await glob(normalize(filesMatcher)))
       .filter((file) => minimatch(file, this.pattern, { matchBase: true }))
       .map((path): Resource | undefined => {
@@ -35,11 +34,7 @@ export abstract class Driver {
       .sort((pathA, pathB) => pathA.path.localeCompare(pathB.path))
       .flatMap((resource) =>
         this.resourceEntries(resource.path, resource.resource),
-      )
-      .map((entry) => ({
-        ...entry,
-        sourceIndex: engineDriver.parse(entry.source).toIndex(),
-      }));
+      );
   }
 
   // eslint-disable-next-line @typescript-eslint/class-methods-use-this
