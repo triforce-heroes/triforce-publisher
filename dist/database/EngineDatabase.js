@@ -1,1 +1,0 @@
-import{executeFirst as n}from"./Database.js";export async function getEngine(e){return n("SELECT [id], [engine] FROM [engines] WHERE [engine] = @engine",{engine:e})}
