@@ -11,6 +11,7 @@ import {
 import { BMGDriver } from "./BMGDriver.js";
 import { KOEIDriver } from "./KOEIDriver.js";
 import { LBRSDriver } from "./LBRSDriver.js";
+import { LOSTDriver } from "./LOSTDriver.js";
 import { MSBTDriver } from "./MSBTDriver.js";
 import { NLOCDriver } from "./NLOCDriver.js";
 import { PKLADriver } from "./PKLADriver.js";
@@ -34,6 +35,7 @@ export const supportedSourceDrivers = {
   msbt: MSBTDriver,
   nloc: NLOCDriver,
   pkla: PKLADriver,
+  lost: LOSTDriver,
   udk: UDKDriver,
 };
 

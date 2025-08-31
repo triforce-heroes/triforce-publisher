@@ -62,6 +62,14 @@ export declare const supportedSourceDrivers: {
         entries(filesMatcher: string): Promise<import("../types/DataEntryRaw.js").DataEntryRaw[]>;
         reassignLocales(entries: import("../types/DataEntryRaw.js").DataEntryRaw[]): Record<string, import("../types/DataEntryRaw.js").DataEntryRaw[]>;
     };
+    lost: {
+        resourceEntries(path: string, resource: Buffer): import("../types/DataEntryRaw.js").DataEntryRaw[];
+        readonly name: string;
+        readonly pattern: string;
+        validate(_resource: Buffer): boolean;
+        entries(filesMatcher: string): Promise<import("../types/DataEntryRaw.js").DataEntryRaw[]>;
+        reassignLocales(entries: import("../types/DataEntryRaw.js").DataEntryRaw[]): Record<string, import("../types/DataEntryRaw.js").DataEntryRaw[]>;
+    };
     udk: {
         resourceEntries(path: string): import("../types/DataEntryRaw.js").DataEntryRaw[];
         reassignLocales(entries: import("../types/DataEntryRaw.js").DataEntryRaw[]): {

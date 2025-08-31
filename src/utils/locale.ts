@@ -1,9 +1,42 @@
 const guessableLocales: Array<[SupportedLocale, ...string[]]> = [
-  ["en", "en_us", "USen", "EUen", "english", "ukenglish", "Msgus", "Msguk"],
-  ["es", "es_us", "USes", "EUes", "spanish", "naspanish", "Msgsp", "Msgussp"],
-  ["fr", "fr_us", "USfr", "EUfr", "french", "nafrench", "Msgfr", "Msgusfr"],
+  [
+    "en",
+    "en_us",
+    "en_eu",
+    "en-EU",
+    "USen",
+    "EUen",
+    "english",
+    "ukenglish",
+    "Msgus",
+    "Msguk",
+  ],
+  [
+    "es",
+    "es_us",
+    "es_eu",
+    "es-EU",
+    "USes",
+    "EUes",
+    "spanish",
+    "naspanish",
+    "Msgsp",
+    "Msgussp",
+  ],
+  [
+    "fr",
+    "fr_us",
+    "fr_eu",
+    "fr-EU",
+    "USfr",
+    "EUfr",
+    "french",
+    "nafrench",
+    "Msgfr",
+    "Msgusfr",
+  ],
   ["it", "EUit", "italian", "Msgit"],
-  ["pt", "pt_pt", "pt_br", "EUpt", "portuguese"],
+  ["pt", "pt_pt", "pt_br", "pt-BR", "EUpt", "portuguese"],
   ["de", "EUde", "german", "Msgde"],
   ["nl", "EUnl", "dutch"],
   ["ja", "jp", "JPja", "ja_Kanji", "japanese"],
@@ -45,9 +78,9 @@ export type SupportedLocale = (typeof supportedLocales)[number];
 export const supportedLocalesExtended = [
   ...supportedLocales,
 
-  "en_us",
-  "fr_us",
-  "es_us",
+  "en-EU",
+  "fr-EU",
+  "es-EU",
 
   "zh",
   "zh_tw",
@@ -59,7 +92,7 @@ export const weakLocales = ["ja", "zh", "ko"];
 export const weakLocalesFull = [
   ...weakLocales,
   "fr",
-  "fr_us",
+  "fr-EU",
   "it",
   "de",
   "nl",
@@ -76,8 +109,8 @@ export function simplifyLocales(locales: string[]) {
   const result = new Set<string>();
 
   for (const locale of locales) {
-    if (locale.endsWith("_us")) {
-      const [baseLocale] = locale.split("_", 2) as [string];
+    if (locale.endsWith("-EU")) {
+      const [baseLocale] = locale.split("-", 2) as [string];
 
       if (!locales.includes(baseLocale)) {
         result.add(locale);

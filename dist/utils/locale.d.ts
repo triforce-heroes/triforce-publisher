@@ -1,6 +1,6 @@
 export declare const supportedLocales: readonly ["en", "es", "fr", "it", "pt", "de", "nl", "ja", "ch", "ko", "ru"];
 export type SupportedLocale = (typeof supportedLocales)[number];
-export declare const supportedLocalesExtended: readonly ["en", "es", "fr", "it", "pt", "de", "nl", "ja", "ch", "ko", "ru", "en_us", "fr_us", "es_us", "zh", "zh_tw"];
+export declare const supportedLocalesExtended: readonly ["en", "es", "fr", "it", "pt", "de", "nl", "ja", "ch", "ko", "ru", "en-EU", "fr-EU", "es-EU", "zh", "zh_tw"];
 export type SupportedLocaleExtended = (typeof supportedLocalesExtended)[number];
 export declare const weakLocales: string[];
 export declare const weakLocalesFull: string[];

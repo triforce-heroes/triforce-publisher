@@ -6,7 +6,7 @@ describe("locale", () => {
   const guessLocaleTests = [
     ["en", "en"],
     ["EUen", "en"],
-    ["en_us", "en"],
+    ["en-EU", "en"],
     ["USen", "en"],
     ["jp", "ja"],
     ["JPja", "ja"],
@@ -23,13 +23,13 @@ describe("locale", () => {
 
   const simplifyLocalesTests: Array<[input: string[], output: string[]]> = [
     [["en"], ["en"]],
-    [["en_us"], ["en_us"]],
-    [["en", "en_us"], ["en"]],
-    [["en_us", "en"], ["en"]],
+    [["en-EU"], ["en-EU"]],
+    [["en", "en-EU"], ["en"]],
+    [["en-EU", "en"], ["en"]],
     [["en", "en"], ["en"]],
-    [["en_us", "en_us"], ["en_us"]],
+    [["en-EU", "en-EU"], ["en-EU"]],
     [
-      ["es", "es_us", "en_us", "en"],
+      ["es", "es-EU", "en-EU", "en"],
       ["es", "en"],
     ],
   ];
