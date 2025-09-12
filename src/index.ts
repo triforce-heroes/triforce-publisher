@@ -1,0 +1,1 @@
+export { generateQuery } from "@/Generator";

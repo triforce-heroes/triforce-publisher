@@ -1,1 +1,0 @@
-export async function delay(e){return new Promise(n=>{setTimeout(n,e)})}

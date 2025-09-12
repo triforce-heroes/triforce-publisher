@@ -1,1 +1,0 @@
-import{basename as r}from"path";import{extract as e}from"@triforce-heroes/triforce-lost/Extract";import{Driver as t}from"./Driver.js";export const LOSTDriver=new class extends t{constructor(){super("dat","*.bin")}resourceEntries(t,o){return e(o).map((e,o)=>({resource:r(t,".bin").slice(0,-3),reference:String(o),source:e}))}};
