@@ -11,14 +11,14 @@ describe("generator", () => {
     [[], null],
     [
       [{ reference: 123, sources: { hello: ["en"] } }],
-      'INSERT INTO `projectEntries` (`projectId`, `resource`, `reference`, `sources`, `updatedAt`) VALUES (1, NULL, 123, "{""hello"":[""en""]}", 0)',
+      'INSERT INTO `projectEntries` (`projectId`, `resource`, `reference`, `sources`, `updatedAt`) VALUES (1, NULL, 123, "{""hello"":[""en""]}", 0) ON CONFLICT (`projectId`, `resource`, `reference`) DO UPDATE SET `sources` = `excluded`.`sources`, `updatedAt` = `excluded`.`updatedAt`',
     ],
     [
       [
         { reference: 1, sources: { hello: ["en"] } },
         { reference: 2, sources: { hello: ["en"], world: ["pt", "es"] } },
       ],
-      'INSERT INTO `projectEntries` (`projectId`, `resource`, `reference`, `sources`, `updatedAt`) VALUES (1, NULL, 1, "{""hello"":[""en""]}", 0), (1, NULL, 2, "{""hello"":[""en""],""world"":[""pt"",""es""]}", 0)',
+      'INSERT INTO `projectEntries` (`projectId`, `resource`, `reference`, `sources`, `updatedAt`) VALUES (1, NULL, 1, "{""hello"":[""en""]}", 0), (1, NULL, 2, "{""hello"":[""en""],""world"":[""pt"",""es""]}", 0) ON CONFLICT (`projectId`, `resource`, `reference`) DO UPDATE SET `sources` = `excluded`.`sources`, `updatedAt` = `excluded`.`updatedAt`',
     ],
   ];
 

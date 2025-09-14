@@ -36,5 +36,12 @@ export function generateQuery(
     );
   }
 
+  query.onConflict(
+    sql
+      .conflict(["projectId", "resource", "reference"])
+      .set("sources", sql.excluded("sources"))
+      .set("updatedAt", sql.excluded("updatedAt")),
+  );
+
   return query.build().query;
 }
