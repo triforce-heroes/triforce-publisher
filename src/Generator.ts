@@ -6,11 +6,7 @@ export interface GeneratorEntry {
   sources: Record<string, string[]>;
 }
 
-export function generateQuery(
-  projectId: number,
-  entries: GeneratorEntry[],
-  updatedAt?: number,
-) {
+export function generateQuery(projectId: number, entries: GeneratorEntry[], updatedAt?: number) {
   if (entries.length === 0) {
     return null;
   }
@@ -40,7 +36,35 @@ export function generateQuery(
     sql
       .conflict(["projectId", "resource", "reference"])
       .set("sources", sql.excluded("sources"))
-      .set("updatedAt", sql.excluded("updatedAt")),
+      .set("updatedAt", sql.excluded("updatedAt"))
+      .set(
+        "translation",
+        sql
+          .case()
+          .when(sql.neq("sources", sql.excluded("sources")), sql.staticValue(null))
+          .else("translation"),
+      )
+      .set(
+        "translationBy",
+        sql
+          .case()
+          .when(sql.neq("sources", sql.excluded("sources")), sql.staticValue(null))
+          .else("translationBy"),
+      )
+      .set(
+        "translationAt",
+        sql
+          .case()
+          .when(sql.neq("sources", sql.excluded("sources")), sql.staticValue(null))
+          .else("translationAt"),
+      )
+      .set(
+        "metadata",
+        sql
+          .case()
+          .when(sql.neq("sources", sql.excluded("sources")), sql.staticValue(null))
+          .else("metadata"),
+      ),
   );
 
   return query.build().query;
