@@ -1,6 +1,6 @@
 {
   "name": "@triforce-heroes/triforce-publisher",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "Project entries generator for TAPP.",
   "license": "Apache License 2.0",
   "files": [

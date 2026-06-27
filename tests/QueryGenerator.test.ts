@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import type { GeneratorEntry } from "@/Generator";
+import type { GeneratorEntry } from "@/QueryGenerator";
 
-import { generateQuery } from "@/Generator";
+import { queryGenerator } from "@/QueryGenerator";
 
-describe("generator", () => {
+describe("QueryGenerator", () => {
   type Test = [entries: GeneratorEntry[], query: string | null];
 
   const tests: Test[] = [
@@ -23,6 +23,6 @@ describe("generator", () => {
   ];
 
   it.each(tests)("#%# generateQuery()", (entries, query) => {
-    expect(generateQuery(1, entries, 0)).toStrictEqual(query);
+    expect(queryGenerator(1, entries, 0)).toStrictEqual(query);
   });
 });

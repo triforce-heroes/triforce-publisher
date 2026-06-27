@@ -3,4 +3,4 @@ export interface GeneratorEntry {
     reference: number | string;
     sources: Record<string, string[]>;
 }
-export declare function generateQuery(projectId: number, entries: GeneratorEntry[], updatedAt?: number): string | null;
+export declare function queryGenerator(projectId: number, entries: GeneratorEntry[], updatedAt?: number): string | null;

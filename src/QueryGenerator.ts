@@ -6,7 +6,7 @@ export interface GeneratorEntry {
   sources: Record<string, string[]>;
 }
 
-export function generateQuery(projectId: number, entries: GeneratorEntry[], updatedAt?: number) {
+export function queryGenerator(projectId: number, entries: GeneratorEntry[], updatedAt?: number) {
   if (entries.length === 0) {
     return null;
   }

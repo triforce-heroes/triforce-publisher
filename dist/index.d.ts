@@ -1,1 +1,1 @@
-export { generateQuery } from "./Generator";
+export { queryGenerator } from "./QueryGenerator";

@@ -1,1 +1,1 @@
-export{generateQuery}from"./Generator.js";
+export{queryGenerator}from"./QueryGenerator.js";
