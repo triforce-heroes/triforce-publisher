@@ -1,0 +1,1 @@
+export function toObject(t){return Object.fromEntries([...t].map(([t,e])=>[t,Object.fromEntries(e)]))}

@@ -3,5 +3,8 @@ import { URL } from "node:url";
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
-  test: { alias: { "@": new URL("src/", import.meta.url).pathname } },
+  test: {
+    alias: { "@": new URL("src/", import.meta.url).pathname },
+    fileParallelism: false,
+  },
 });

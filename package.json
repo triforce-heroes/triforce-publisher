@@ -9,6 +9,14 @@
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "imports": {
+    "#/*": [
+      "./src/*"
+    ],
+    "#tests/*": [
+      "./tests/*"
+    ]
+  },
   "scripts": {
     "build": "rimraf ./dist && tspc -p ./tsconfig.build.json && swc ./dist -d .",
     "typecheck": "tsc --noEmit",
@@ -22,7 +30,9 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@rheactor/rheactor-query-builder": "github:rheactor/rheactor-query-builder"
+    "@rheactor/rheactor-query-builder": "github:rheactor/rheactor-query-builder",
+    "@triforce-heroes/triforce-core": "github:triforce-heroes/triforce-core",
+    "arkregex": "^0.0.6"
   },
   "devDependencies": {
     "@rheactor/eslint-config-rheactor": "github:rheactor/eslint-config-rheactor",

@@ -1,1 +1,3 @@
-export { queryGenerator } from "@/QueryGenerator";
+export { Publisher } from "#/features/Publisher";
+
+export { queryGenerator } from "#/QueryGenerator";
