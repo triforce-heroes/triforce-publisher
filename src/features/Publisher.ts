@@ -3,10 +3,10 @@ import { join } from "node:path";
 
 import { chunk } from "@triforce-heroes/triforce-core/Array";
 
+import type { PublisherEntry } from "#/types/PublisherEntry";
 import type { PublisherOutput } from "#/types/PublisherOutput";
 import type { VersionHashes } from "#/types/VersionHashes";
 
-import { PublisherResource } from "#/features/PublisherResource";
 import { queryGenerator } from "#/QueryGenerator";
 import { hash } from "#/services/HashService";
 import { toObject } from "#/services/MapService";
@@ -15,7 +15,7 @@ import { getLatestVersion, getVersionHashes } from "#/services/VersionService";
 export class Publisher {
   private readonly languages = new Map<string, string>();
 
-  private readonly resources = new Map<string, PublisherResource>();
+  private readonly references = new Map<string, Map<string, Map<string, Set<string>>>>();
 
   public constructor(private readonly projectId: number) {}
 
@@ -28,14 +28,6 @@ export class Publisher {
     this.languages.set(canonical, canonical);
   }
 
-  public createResource(name: string): PublisherResource {
-    if (this.resources.has(name)) {
-      throw new Error(`resource "${name}" already exists`);
-    }
-
-    return this.resources.getOrInsert(name, new PublisherResource(this, name));
-  }
-
   public resolveLanguage(name: string): string {
     const canonical = this.languages.get(name);
 
@@ -46,16 +38,58 @@ export class Publisher {
     return canonical;
   }
 
+  public addReference(language: string, resource: string, reference: string, text: string): void {
+    const resolvedLanguage = this.resolveLanguage(language);
+
+    if (!this.references.has(resource)) {
+      this.references.set(resource, new Map());
+    }
+
+    const referencesByKey = this.references.get(resource)!;
+
+    if (!referencesByKey.has(reference)) {
+      referencesByKey.set(reference, new Map());
+    }
+
+    const texts = referencesByKey.get(reference)!;
+
+    if (!texts.has(text)) {
+      texts.set(text, new Set());
+    }
+
+    const languages = texts.get(text)!;
+
+    if (languages.has(resolvedLanguage)) {
+      throw new Error(
+        `duplicate reference: language "${language}" already has text "${text}" for reference "${reference}"`,
+      );
+    }
+
+    languages.add(resolvedLanguage);
+  }
+
+  public getEntries(): PublisherEntry[] {
+    return [...this.references.entries()].flatMap(([resource, referencesByKey]) =>
+      [...referencesByKey.entries()].map(([reference, texts]) => ({
+        resource,
+        reference,
+        sources: Object.fromEntries(
+          [...texts.entries()].map(([text, languages]) => [text, [...languages]]),
+        ),
+      })),
+    );
+  }
+
   public dryRun(path: string): PublisherOutput {
-    const entries = [...this.resources.values()].flatMap((resource) => resource.getEntries());
+    const entries = this.getEntries();
 
     const letters = new Set<number>();
     const hashes: VersionHashes = new Map();
 
     for (const entry of entries) {
-      for (const reference of Object.keys(entry.sources)) {
-        for (let index = 0; index < reference.length; index++) {
-          letters.add(reference.codePointAt(index)!);
+      for (const source of Object.keys(entry.sources)) {
+        for (let index = 0; index < source.length; index++) {
+          letters.add(source.codePointAt(index)!);
         }
       }
 

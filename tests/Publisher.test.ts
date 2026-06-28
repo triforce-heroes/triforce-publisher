@@ -71,33 +71,14 @@ describe("Publisher", () => {
     });
   });
 
-  describe("createResource", () => {
-    it("creates a resource", () => {
-      const publisher = new Publisher(1);
-      const resource = publisher.createResource("example.xml");
-
-      expect(resource).toBeDefined();
-    });
-
-    it("throws for duplicate resource name", () => {
-      const publisher = new Publisher(1);
-      publisher.createResource("example.xml");
-
-      expect(() => publisher.createResource("example.xml")).toThrowError(
-        'resource "example.xml" already exists',
-      );
-    });
-  });
-
   describe("addReference", () => {
     it("aggregates references with different texts", () => {
       const publisher = new Publisher(1);
       publisher.addLanguage("pt");
       publisher.addLanguage("en");
 
-      const resource = publisher.createResource("example.xml");
-      resource.addReference("pt", "fruit", "banana");
-      resource.addReference("en", "fruit", "maçã");
+      publisher.addReference("pt", "example.xml", "fruit", "banana");
+      publisher.addReference("en", "example.xml", "fruit", "maçã");
 
       const output = publisher.dryRun(tmpDir);
 
@@ -118,9 +99,8 @@ describe("Publisher", () => {
       publisher.addLanguage("pt");
       publisher.addLanguage("en");
 
-      const resource = publisher.createResource("example.xml");
-      resource.addReference("pt", "fruit", "banana");
-      resource.addReference("en", "fruit", "banana");
+      publisher.addReference("pt", "example.xml", "fruit", "banana");
+      publisher.addReference("en", "example.xml", "fruit", "banana");
 
       const output = publisher.dryRun(tmpDir);
 
@@ -139,8 +119,7 @@ describe("Publisher", () => {
       const publisher = new Publisher(1);
       publisher.addLanguage("ja", "jp");
 
-      const resource = publisher.createResource("example.xml");
-      resource.addReference("ja", "fruit", "バナナ");
+      publisher.addReference("ja", "example.xml", "fruit", "バナナ");
 
       const output = publisher.dryRun(tmpDir);
 
@@ -157,22 +136,20 @@ describe("Publisher", () => {
 
     it("throws for unregistered language", () => {
       const publisher = new Publisher(1);
-      const resource = publisher.createResource("example.xml");
 
       expect(() => {
-        resource.addReference("unknown", "fruit", "banana");
+        publisher.addReference("unknown", "example.xml", "fruit", "banana");
       }).toThrowError('language "unknown" is not registered');
     });
 
-    it("throws for duplicate same language, reference and text", () => {
+    it("throws for duplicate same language, resource, reference and text", () => {
       const publisher = new Publisher(1);
       publisher.addLanguage("pt");
 
-      const resource = publisher.createResource("example.xml");
-      resource.addReference("pt", "fruit", "banana");
+      publisher.addReference("pt", "example.xml", "fruit", "banana");
 
       expect(() => {
-        resource.addReference("pt", "fruit", "banana");
+        publisher.addReference("pt", "example.xml", "fruit", "banana");
       }).toThrowError(
         'duplicate reference: language "pt" already has text "banana" for reference "fruit"',
       );
@@ -182,9 +159,8 @@ describe("Publisher", () => {
       const publisher = new Publisher(1);
       publisher.addLanguage("pt");
 
-      const resource = publisher.createResource("example.xml");
-      resource.addReference("pt", "fruit", "banana");
-      resource.addReference("pt", "other", "banana");
+      publisher.addReference("pt", "example.xml", "fruit", "banana");
+      publisher.addReference("pt", "example.xml", "other", "banana");
 
       const output = publisher.dryRun(tmpDir);
       expect(output.entries).toHaveLength(2);
@@ -196,8 +172,7 @@ describe("Publisher", () => {
       const publisher = new Publisher(1);
       publisher.addLanguage("en");
 
-      const resource = publisher.createResource("");
-      resource.addReference("en", "test", "ab");
+      publisher.addReference("en", "", "test", "ab");
 
       const output = publisher.dryRun(tmpDir);
 
@@ -208,8 +183,7 @@ describe("Publisher", () => {
       const publisher = new Publisher(1);
       publisher.addLanguage("en");
 
-      const resource = publisher.createResource("");
-      resource.addReference("en", "test", "ba");
+      publisher.addReference("en", "", "test", "ba");
 
       const output = publisher.dryRun(tmpDir);
 
@@ -221,10 +195,9 @@ describe("Publisher", () => {
       publisher.addLanguage("pt");
       publisher.addLanguage("en");
 
-      const resource = publisher.createResource("");
-      resource.addReference("pt", "fruit", "banana");
-      resource.addReference("en", "fruit", "banana");
-      resource.addReference("pt", "animal", "gato");
+      publisher.addReference("pt", "", "fruit", "banana");
+      publisher.addReference("en", "", "fruit", "banana");
+      publisher.addReference("pt", "", "animal", "gato");
 
       const output = publisher.dryRun(tmpDir);
 
@@ -235,8 +208,7 @@ describe("Publisher", () => {
       const publisher = new Publisher(1);
       publisher.addLanguage("en");
 
-      const resource = publisher.createResource("");
-      resource.addReference("en", "hello", "world");
+      publisher.addReference("en", "", "hello", "world");
 
       const output = publisher.dryRun(tmpDir);
 
@@ -253,8 +225,7 @@ describe("Publisher", () => {
       const publisher = new Publisher(1);
       publisher.addLanguage("en");
 
-      const resource = publisher.createResource("");
-      resource.addReference("en", "hello", "world");
+      publisher.addReference("en", "", "hello", "world");
 
       const output = publisher.dryRun(tmpDir);
 
@@ -272,12 +243,11 @@ describe("Publisher", () => {
       expect(output.version.json).toBeNull();
     });
 
-    it("computes currentHashes for all entries", () => {
+    it("computes hashes for all entries", () => {
       const publisher = new Publisher(1);
       publisher.addLanguage("en");
 
-      const resource = publisher.createResource("test.dat");
-      resource.addReference("en", "hello", "world");
+      publisher.addReference("en", "test.dat", "hello", "world");
 
       const output = publisher.dryRun(tmpDir);
 
@@ -294,11 +264,8 @@ describe("Publisher", () => {
       publisher.addLanguage("pt");
       publisher.addLanguage("en");
 
-      const res1 = publisher.createResource("a.xml");
-      res1.addReference("pt", "hello", "olá");
-
-      const res2 = publisher.createResource("b.xml");
-      res2.addReference("en", "hello", "hello");
+      publisher.addReference("pt", "a.xml", "hello", "olá");
+      publisher.addReference("en", "b.xml", "hello", "hello");
 
       const output = publisher.dryRun(tmpDir);
 
@@ -320,8 +287,7 @@ describe("Publisher", () => {
       const publisher = new Publisher(1);
       publisher.addLanguage("en");
 
-      const resource = publisher.createResource("data.dat");
-      resource.addReference("en", "dialog.IDD_EDITBOX.caption", "Edit");
+      publisher.addReference("en", "data.dat", "dialog.IDD_EDITBOX.caption", "Edit");
 
       const output = publisher.dryRun(tmpDir);
 
@@ -338,9 +304,8 @@ describe("Publisher", () => {
       publisher.addLanguage("pt");
       publisher.addLanguage("en");
 
-      const resource = publisher.createResource("example.xml");
-      resource.addReference("pt", "fruit", "banana");
-      resource.addReference("en", "fruit", "banana");
+      publisher.addReference("pt", "example.xml", "fruit", "banana");
+      publisher.addReference("en", "example.xml", "fruit", "banana");
 
       const first = publisher.dryRun(tmpDir);
 
@@ -361,8 +326,7 @@ describe("Publisher", () => {
       publisher.addLanguage("pt");
       publisher.addLanguage("en");
 
-      const resource = publisher.createResource("example.xml");
-      resource.addReference("pt", "fruit", "banana");
+      publisher.addReference("pt", "example.xml", "fruit", "banana");
 
       const first = publisher.dryRun(tmpDir);
 
@@ -373,7 +337,7 @@ describe("Publisher", () => {
         );
       }
 
-      resource.addReference("en", "fruit", "banana");
+      publisher.addReference("en", "example.xml", "fruit", "banana");
 
       const second = publisher.dryRun(tmpDir);
 
@@ -384,14 +348,13 @@ describe("Publisher", () => {
       const publisher = new Publisher(1);
       publisher.addLanguage("pt");
 
-      const resource = publisher.createResource("data.dat");
-      resource.addReference("pt", "ref_a", "alpha");
+      publisher.addReference("pt", "data.dat", "ref_a", "alpha");
 
       const v1 = publisher.dryRun(tmpDir);
 
       writeFileSync(join(tmpDir, "query_v1.json"), JSON.stringify(v1.version.json, null, "\t"));
 
-      resource.addReference("pt", "ref_b", "beta");
+      publisher.addReference("pt", "data.dat", "ref_b", "beta");
 
       const v2Hashes = {
         "data.dat": {
@@ -402,7 +365,7 @@ describe("Publisher", () => {
 
       writeFileSync(join(tmpDir, "query_v2.json"), JSON.stringify(v2Hashes, null, "\t"));
 
-      resource.addReference("pt", "ref_c", "gamma");
+      publisher.addReference("pt", "data.dat", "ref_c", "gamma");
 
       const v3 = publisher.dryRun(tmpDir);
 
@@ -417,9 +380,8 @@ describe("Publisher", () => {
       publisher.addLanguage("pt");
       publisher.addLanguage("en");
 
-      const resource = publisher.createResource("test.xml");
-      resource.addReference("pt", "hello", "olá");
-      resource.addReference("en", "hello", "hello");
+      publisher.addReference("pt", "test.xml", "hello", "olá");
+      publisher.addReference("en", "test.xml", "hello", "hello");
 
       const output = publisher.dryRun(tmpDir);
 
@@ -438,17 +400,14 @@ describe("Publisher", () => {
       publisher.addLanguage("pt");
       publisher.addLanguage("ja", "jp");
 
-      const res1 = publisher.createResource("resource-a.dat");
-      const res2 = publisher.createResource("resource-b.dat");
-
       for (let i = 0; i < 500; i++) {
-        res1.addReference("en", `ref_${i}`, `text_en_${i}`);
-        res1.addReference("pt", `ref_${i}`, `text_pt_${i}`);
+        publisher.addReference("en", "resource-a.dat", `ref_${i}`, `text_en_${i}`);
+        publisher.addReference("pt", "resource-a.dat", `ref_${i}`, `text_pt_${i}`);
       }
 
       for (let i = 0; i < 500; i++) {
-        res2.addReference("en", `ref_${i}`, `text_en_${i}`);
-        res2.addReference("ja", `ref_${i}`, `text_jp_${i}`);
+        publisher.addReference("en", "resource-b.dat", `ref_${i}`, `text_en_${i}`);
+        publisher.addReference("ja", "resource-b.dat", `ref_${i}`, `text_jp_${i}`);
       }
 
       const v1 = publisher.dryRun(tmpDir);
@@ -461,10 +420,8 @@ describe("Publisher", () => {
 
       writeFileSync(join(tmpDir, "query_v1.json"), JSON.stringify(v1.version.json, null, "\t"));
 
-      const res3 = publisher.createResource("resource-c.dat");
-
       for (let i = 0; i < 200; i++) {
-        res3.addReference("en", `new_${i}`, `new_text_${i}`);
+        publisher.addReference("en", "resource-c.dat", `new_${i}`, `new_text_${i}`);
       }
 
       const v2 = publisher.dryRun(tmpDir);
@@ -477,7 +434,7 @@ describe("Publisher", () => {
       writeFileSync(join(tmpDir, "query_v2.json"), JSON.stringify(v2.version.json, null, "\t"));
 
       for (let i = 0; i < 100; i++) {
-        res1.addReference("en", `ref_${i}`, `modified_en_${i}`);
+        publisher.addReference("en", "resource-a.dat", `ref_${i}`, `modified_en_${i}`);
       }
 
       const v3 = publisher.dryRun(tmpDir);
