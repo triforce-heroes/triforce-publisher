@@ -18,10 +18,11 @@ src/
   services/
     HashService.ts        # SHA-256 hashing
     MapService.ts         # Map<string, Map<string, string>> → Record conversion
+    MetadataService.ts    # metadata validation/normalization (normalizeMetadata)
     VersionService.ts     # Async reads/merges of versioned query_v{N}.json files
   types/
     MapObject.ts          # Record<string, Record<string, string>>
-    PublisherEntry.ts     # { resource, reference, sources }
+    PublisherEntry.ts     # { resource, reference, sources, metadata? }
     PublisherOutput.ts    # Full output of dryRun()
     VersionHashes.ts      # Map<string, Map<string, string>>
   QueryGenerator.ts       # queryGenerator + GeneratorEntry (PostgreSQL upsert SQL)
@@ -51,13 +52,16 @@ tests/
 7. `Publisher` I/O is async: `dryRun(path): Promise<PublisherOutput>`, `save(path): Promise<void>`,
    `getVersionHashes`/`getLatestVersion` return promises.
 8. Data flow: `addLanguage(name, canonical?)` registers a language (alias resolves to canonical);
-   `publisher.addReference(language, resource, reference, text)` merges same texts across languages
-   and throws on duplicates; `await publisher.dryRun(path)` computes without writing;
+   `publisher.addReference(language, resource, reference, text, metadata?)` merges same texts across
+   languages and throws on duplicates; an optional plain-object `metadata` is stored as the entry's
+   absolute value (last write wins, empty objects count as absent) and normalized by
+   `normalizeMetadata`; `await publisher.dryRun(path)` computes without writing;
    `await publisher.save(path)` writes `entries.json`, `letters.json`, `uniques.json` plus
    `query_v{N}.sql`/`.json` only for changed entries (chunks of 100).
 9. Error contract: `addLanguage` throws if name or canonical is already registered;
    `resolveLanguage` throws if language is not registered; `addReference` throws if the same
-   language+reference+text is added twice.
+   language+reference+text is added twice; `normalizeMetadata` throws if metadata is not a plain
+   object.
 10. `README.md`, `AGENTS.md`, and `CHANGELOG.md` are maintained by the `/create-agents` skill, which
     audits them against the code. Never generate or regenerate them with ad hoc scripts.
 
@@ -65,7 +69,8 @@ tests/
 
 - Framework: Vitest, always executed through `bun run test` (single run) or `bun run test:watch`.
 - Tests live in `tests/*.test.ts`, mirroring the `src` file name; shared fixtures live in
-  `tests/services/FileService.ts` (`tmpDir`, `cleanTmpDir()`).
+  `tests/services/FileService.ts` (`tmpDir`, `cleanTmpDir()`). `MetadataService` has no dedicated
+  test file; it is covered indirectly through the `Publisher` and `QueryGenerator` tests.
 - Test files run sequentially (`fileParallelism: false` in vitest.config.ts) because they share
   `tests/tmp/`; it is cleaned (except `.gitignore`) before and after each test.
 - Every async test opens with `expect.assertions(N)` carrying the exact assertion count.

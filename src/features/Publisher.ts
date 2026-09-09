@@ -6,6 +6,7 @@ import { chunk } from "@triforce-heroes/triforce-core/Array";
 import { queryGenerator } from "#/QueryGenerator";
 import { hash } from "#/services/HashService";
 import { toObject } from "#/services/MapService";
+import { normalizeMetadata } from "#/services/MetadataService";
 import { getLatestVersion, getVersionHashes } from "#/services/VersionService";
 import type { PublisherEntry } from "#/types/PublisherEntry";
 import type { PublisherOutput } from "#/types/PublisherOutput";
@@ -15,6 +16,8 @@ export class Publisher {
   private readonly languages = new Map<string, string>();
 
   private readonly references = new Map<string, Map<string, Map<string, Set<string>>>>();
+
+  private readonly metadatas = new Map<string, Map<string, Record<string, unknown>>>();
 
   public constructor(private readonly projectId: number) {}
 
@@ -37,7 +40,13 @@ export class Publisher {
     return canonical;
   }
 
-  public addReference(language: string, resource: string, reference: string, text: string): void {
+  public addReference(
+    language: string,
+    resource: string,
+    reference: string,
+    text: string,
+    metadata?: Record<string, unknown>,
+  ): void {
     const resolvedLanguage = this.resolveLanguage(language);
 
     if (!this.references.has(resource)) {
@@ -65,6 +74,12 @@ export class Publisher {
     }
 
     languages.add(resolvedLanguage);
+
+    const normalized = normalizeMetadata(metadata);
+
+    if (normalized !== undefined) {
+      this.metadatas.getOrInsertComputed(resource, () => new Map()).set(reference, normalized);
+    }
   }
 
   public getEntries(): PublisherEntry[] {
@@ -75,6 +90,7 @@ export class Publisher {
         sources: Object.fromEntries(
           [...texts.entries()].map(([text, languages]) => [text, [...languages]]),
         ),
+        metadata: this.metadatas.get(resource)?.get(reference),
       })),
     );
   }

@@ -1,9 +1,12 @@
 import sql from "@rheactor/rheactor-query-builder";
 
+import { normalizeMetadata } from "#/services/MetadataService";
+
 export interface GeneratorEntry {
   resource?: string;
   reference: number | string;
   sources: Record<string, string[]>;
+  metadata?: Record<string, unknown>;
 }
 
 export function queryGenerator(projectId: number, entries: GeneratorEntry[], updatedAt?: number) {
@@ -16,6 +19,7 @@ export function queryGenerator(projectId: number, entries: GeneratorEntry[], upd
     "resource",
     "reference",
     "sources",
+    "metadata",
     "updatedAt",
   ]);
 
@@ -23,11 +27,14 @@ export function queryGenerator(projectId: number, entries: GeneratorEntry[], upd
   const date = sql.staticValue(updatedAt ?? Date.now());
 
   for (const entry of entries) {
+    const metadata = normalizeMetadata(entry.metadata);
+
     query.values(
       project,
       sql.staticValue(entry.resource ?? null),
       sql.staticValue(entry.reference),
       sql.jsonStaticValue(entry.sources),
+      metadata === undefined ? sql.staticValue(null) : sql.jsonStaticValue({ metadata }),
       date,
     );
   }
@@ -62,8 +69,21 @@ export function queryGenerator(projectId: number, entries: GeneratorEntry[], upd
         "metadata",
         sql
           .case()
-          .when(sql.neq("sources", sql.excluded("sources")), sql.staticValue(null))
-          .else("metadata"),
+          .when(
+            sql.and(
+              sql.isNull(sql.excluded("metadata")),
+              sql.neq("sources", sql.excluded("sources")),
+            ),
+            sql.staticValue(null),
+          )
+          .when(sql.isNull(sql.excluded("metadata")), "metadata")
+          .else(
+            sql.call(
+              "JSON_PATCH",
+              sql.call("COALESCE", "metadata", sql.staticValue("{}")),
+              sql.excluded("metadata"),
+            ),
+          ),
       ),
   );
 

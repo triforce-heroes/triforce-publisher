@@ -3,6 +3,7 @@ interface PublisherEntry {
   resource: string;
   reference: string;
   sources: Record<string, string[]>;
+  metadata?: Record<string, unknown>;
 }
 //#endregion
 //#region src/types/PublisherOutput.d.ts
@@ -23,10 +24,11 @@ export declare class Publisher {
   private readonly projectId;
   private readonly languages;
   private readonly references;
+  private readonly metadatas;
   constructor(projectId: number);
   addLanguage(name: string, canonical?: string): void;
   resolveLanguage(name: string): string;
-  addReference(language: string, resource: string, reference: string, text: string): void;
+  addReference(language: string, resource: string, reference: string, text: string, metadata?: Record<string, unknown>): void;
   getEntries(): PublisherEntry[];
   dryRun(path: string): Promise<PublisherOutput>;
   save(path: string): Promise<void>;
@@ -37,6 +39,7 @@ interface GeneratorEntry {
   resource?: string;
   reference: number | string;
   sources: Record<string, string[]>;
+  metadata?: Record<string, unknown>;
 }
 export declare function queryGenerator(projectId: number, entries: GeneratorEntry[], updatedAt?: number): string | null;
 //#endregion

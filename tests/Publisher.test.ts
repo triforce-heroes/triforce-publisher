@@ -92,6 +92,7 @@ describe(Publisher, () => {
             banana: ["pt"],
             maçã: ["en"],
           },
+          metadata: undefined,
         },
       ]);
     });
@@ -115,6 +116,7 @@ describe(Publisher, () => {
           sources: {
             banana: ["pt", "en"],
           },
+          metadata: undefined,
         },
       ]);
     });
@@ -136,6 +138,7 @@ describe(Publisher, () => {
           sources: {
             バナナ: ["jp"],
           },
+          metadata: undefined,
         },
       ]);
     });
@@ -172,6 +175,118 @@ describe(Publisher, () => {
 
       const output = await publisher.dryRun(tmpDir);
       expect(output.entries).toHaveLength(2);
+    });
+  });
+
+  describe("metadata", () => {
+    it("stores metadata in entries and SQL as JSON", async () => {
+      expect.assertions(3);
+
+      const publisher = new Publisher(1);
+      publisher.addLanguage("en");
+
+      publisher.addReference("en", "data.dat", "hello", "world", { level: 5 });
+
+      const output = await publisher.dryRun(tmpDir);
+
+      expect(output.entries).toStrictEqual([
+        {
+          resource: "data.dat",
+          reference: "hello",
+          sources: { world: ["en"] },
+          metadata: { level: 5 },
+        },
+      ]);
+      expect(output.version.sql).toStrictEqual(
+        expect.stringContaining('\'{"metadata":{"level":5}}\''),
+      );
+      expect(output.version.sql).toStrictEqual(expect.stringContaining("JSON_PATCH"));
+    });
+
+    it("uses the last metadata value without merging", async () => {
+      expect.assertions(1);
+
+      const publisher = new Publisher(1);
+      publisher.addLanguage("pt");
+      publisher.addLanguage("en");
+
+      publisher.addReference("pt", "example.xml", "fruit", "banana", { a: 1 });
+      publisher.addReference("en", "example.xml", "fruit", "banana", { b: 2 });
+
+      const output = await publisher.dryRun(tmpDir);
+
+      expect(output.entries).toStrictEqual([
+        {
+          resource: "example.xml",
+          reference: "fruit",
+          sources: { banana: ["pt", "en"] },
+          metadata: { b: 2 },
+        },
+      ]);
+    });
+
+    it("treats empty metadata as absent with NULL column", async () => {
+      expect.assertions(2);
+
+      const publisher = new Publisher(1);
+      publisher.addLanguage("en");
+
+      publisher.addReference("en", "", "hello", "world", {});
+
+      const output = await publisher.dryRun(tmpDir);
+
+      expect(output.entries).toStrictEqual([
+        {
+          resource: "",
+          reference: "hello",
+          sources: { world: ["en"] },
+          metadata: undefined,
+        },
+      ]);
+      expect(output.version.sql).toStrictEqual(expect.stringContaining("', NULL,"));
+    });
+
+    it("throws for non-object metadata", () => {
+      const publisher = new Publisher(1);
+      publisher.addLanguage("en");
+
+      expect(() => {
+        publisher.addReference(
+          "en",
+          "",
+          "hello",
+          "world",
+          [] as unknown as Record<string, unknown>,
+        );
+      }).toThrow("metadata must be an object");
+    });
+
+    it("detects metadata change as a new version", async () => {
+      expect.assertions(3);
+
+      const firstPublisher = new Publisher(1);
+      firstPublisher.addLanguage("en");
+      firstPublisher.addReference("en", "data.dat", "hello", "world");
+
+      const first = await firstPublisher.dryRun(tmpDir);
+
+      expect(first.version.needed).toBe(true);
+
+      await writeFile(
+        join(tmpDir, "query_v1.json"),
+        JSON.stringify(first.version.json, null, "\t"),
+      );
+
+      const secondPublisher = new Publisher(1);
+      secondPublisher.addLanguage("en");
+      secondPublisher.addReference("en", "data.dat", "hello", "world", { level: 5 });
+
+      const second = await secondPublisher.dryRun(tmpDir);
+
+      expect(second.version.needed).toBe(true);
+      expect(second.version.sql).toStrictEqual(
+        expect.stringContaining('\'{"metadata":{"level":5}}\''),
+      );
     });
   });
 
@@ -233,6 +348,7 @@ describe(Publisher, () => {
           resource: "",
           reference: "hello",
           sources: { world: ["en"] },
+          metadata: undefined,
         },
       ]);
     });
@@ -298,11 +414,13 @@ describe(Publisher, () => {
           resource: "a.xml",
           reference: "hello",
           sources: { olá: ["pt"] },
+          metadata: undefined,
         },
         {
           resource: "b.xml",
           reference: "hello",
           sources: { hello: ["en"] },
+          metadata: undefined,
         },
       ]);
     });

@@ -71,15 +71,23 @@ publisher.resolveLanguage("ja"); // "jp"
 ### addReference
 
 ```ts
-addReference(language: string, resource: string, reference: string, text: string): void;
+addReference(
+  language: string,
+  resource: string,
+  reference: string,
+  text: string,
+  metadata?: Record<string, unknown>,
+): void;
 ```
 
 Adds a source text for a language+resource+reference combination. The same text added for different
 languages merges into one entry (`{ banana: ["pt", "en"] }`). Throws on unregistered languages and
-when the same language+reference+text combination is added twice.
+when the same language+reference+text combination is added twice. An optional plain-object
+`metadata` is stored on the entry as its absolute value (last write wins, empty objects count as
+absent); it is emitted as `{"metadata": {...}}` so `metadata.metadata` is always an object.
 
 ```ts
-publisher.addReference("en", "dialogs.xml", "IDD_DIALOG.title", "Hello");
+publisher.addReference("en", "dialogs.xml", "IDD_DIALOG.title", "Hello", { level: 5 });
 ```
 
 ### getEntries
@@ -135,13 +143,16 @@ queryGenerator(projectId: number, entries: GeneratorEntry[], updatedAt?: number)
 ```
 
 Builds a PostgreSQL upsert (`INSERT ... ON CONFLICT DO UPDATE`) for `projectEntries` rows. Changed
-`sources` reset the translation columns to `NULL`. Returns `null` when `entries` is empty; defaults
-`updatedAt` to `Date.now()`. You rarely call this directly; `dryRun`/`save` chunk entries and call
-it for you.
+`sources` reset the translation columns to `NULL`. The `INSERT` includes the `metadata` column
+(`NULL` when the entry has none, `{"metadata": {...}}` otherwise); on conflict, provided metadata is
+deep-merged into the stored JSON via `JSON_PATCH`, preserving unrelated keys, while absent metadata
+keeps the previous value (or resets it when `sources` changed). Returns `null` when `entries` is
+empty; defaults `updatedAt` to `Date.now()`. You rarely call this directly; `dryRun`/`save` chunk
+entries and call it for you.
 
 ```ts
 queryGenerator(1, [{ reference: "hi", sources: { hello: ["en"] } }], 0);
-// 'INSERT INTO "projectEntries" ... ON CONFLICT ... DO UPDATE SET ...'
+// 'INSERT INTO `projectEntries` ... ON CONFLICT ... DO UPDATE SET ...'
 ```
 
 ## Types
@@ -153,11 +164,13 @@ interface GeneratorEntry {
   resource?: string;
   reference: number | string;
   sources: Record<string, string[]>;
+  metadata?: Record<string, unknown>;
 }
 ```
 
 One row fed to `queryGenerator`: the resource file (absent becomes SQL `NULL`), the reference key,
-and the per-text language lists.
+the per-text language lists, and the optional metadata object (emitted as `{"metadata": {...}}`;
+empty counts as absent).
 
 ### PublisherEntry
 
@@ -166,11 +179,13 @@ interface PublisherEntry {
   resource: string;
   reference: string;
   sources: Record<string, string[]>;
+  metadata?: Record<string, unknown>;
 }
 ```
 
 One collected entry as returned by `getEntries` and stored in `entries.json`. `resource` is `""`
-when no resource name was given.
+when no resource name was given. `metadata` is `undefined` unless provided via `addReference`;
+because it feeds the entry hash, metadata changes alone trigger a new version.
 
 ### PublisherOutput
 
@@ -194,13 +209,13 @@ is always present).
 
 ## Output files
 
-| File              | Content                                                              |
-| ----------------- | -------------------------------------------------------------------- |
-| `entries.json`    | `PublisherEntry[]` — all entries with resource, reference, sources   |
-| `letters.json`    | `number[]` — sorted unique Unicode code points from all source texts |
-| `uniques.json`    | `string[]` — all unique source texts across all entries              |
-| `query_v{N}.json` | `Record<resource, Record<reference, sha256>>` — hash snapshot        |
-| `query_v{N}.sql`  | SQL upsert with only entries changed since the previous version      |
+| File              | Content                                                                      |
+| ----------------- | ---------------------------------------------------------------------------- |
+| `entries.json`    | `PublisherEntry[]` — all entries with resource, reference, sources, metadata |
+| `letters.json`    | `number[]` — sorted unique Unicode code points from all source texts         |
+| `uniques.json`    | `string[]` — all unique source texts across all entries                      |
+| `query_v{N}.json` | `Record<resource, Record<reference, sha256>>` — hash snapshot                |
+| `query_v{N}.sql`  | SQL upsert with only entries changed since the previous version              |
 
 ## Versioning
 
