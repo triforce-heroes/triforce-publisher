@@ -1,6 +1,6 @@
 {
   "name": "@triforce-heroes/triforce-publisher",
-  "version": "3.1.0",
+  "version": "4.0.0",
   "description": "Project entries generator for TAPP.",
   "license": "Apache License 2.0",
   "files": [
@@ -8,12 +8,8 @@
   ],
   "type": "module",
   "imports": {
-    "#/*": [
-      "./src/*"
-    ],
-    "#tests/*": [
-      "./tests/*"
-    ]
+    "#/*": "./src/*",
+    "#tests/*": "./tests/*"
   },
   "exports": {
     ".": {
@@ -42,7 +38,7 @@
     "@rheactor/rheactor-oxc-config": "github:rheactor/rheactor-oxc-config",
     "@types/node": "^26.5.0",
     "oxfmt": "^0.67.0",
-    "oxlint": "^1.81.0",
+    "oxlint": "^1.82.0",
     "oxlint-tsgolint": "^7.0.2001",
     "tsdown": "^0.23.0",
     "typescript": "^7.0.2",

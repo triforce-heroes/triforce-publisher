@@ -47,7 +47,7 @@ resource.addReference("en", "IDD_DIALOG.title", "Hello");
 resource.addReference("ja", "IDD_DIALOG.title", "こんにちは");
 resource.addReference("pt", "IDD_DIALOG.title", "Olá");
 
-publisher.save("./output");
+await publisher.save("./output");
 ```
 
 ### Data flow
@@ -60,8 +60,9 @@ publisher.save("./output");
    combination. If the same text is added for different languages, they merge into one entry
    (`{ "banana": ["pt", "en"] }`). Throws if the same language+reference+text combination is added
    twice.
-4. `dryRun(path)` — computes all outputs without writing to disk. Returns `PublisherOutput`.
-5. `save(path)` — calls `dryRun`, then writes all files to disk.
+4. `dryRun(path)` — computes all outputs without writing to disk. Returns
+   `Promise<PublisherOutput>`.
+5. `save(path)` — awaits `dryRun`, then writes all files to disk. Returns `Promise<void>`.
 
 ### Versioning system
 

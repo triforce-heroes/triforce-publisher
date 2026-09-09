@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
 import { chunk } from "@triforce-heroes/triforce-core/Array";
@@ -79,7 +79,7 @@ export class Publisher {
     );
   }
 
-  public dryRun(path: string): PublisherOutput {
+  public async dryRun(path: string): Promise<PublisherOutput> {
     const entries = this.getEntries();
 
     const letters = new Set<number>();
@@ -102,7 +102,7 @@ export class Publisher {
       resourceHashes.set(entry.reference, hash(JSON.stringify(entry)));
     }
 
-    const hashesMerged = getVersionHashes(path);
+    const hashesMerged = await getVersionHashes(path);
 
     const diffEntries = entries.filter((entry) => {
       const currentHash = hashes.get(entry.resource)?.get(entry.reference);
@@ -135,22 +135,20 @@ export class Publisher {
     };
   }
 
-  public save(path: string): void {
-    if (!existsSync(path)) {
-      mkdirSync(path, { recursive: true });
-    }
+  public async save(path: string): Promise<void> {
+    await mkdir(path, { recursive: true });
 
-    const { entries, letters, uniques, version } = this.dryRun(path);
+    const { entries, letters, uniques, version } = await this.dryRun(path);
 
-    writeFileSync(join(path, "entries.json"), JSON.stringify(entries, null, "\t"));
-    writeFileSync(join(path, "letters.json"), JSON.stringify([...letters], null, "\t"));
-    writeFileSync(join(path, "uniques.json"), JSON.stringify([...uniques], null, "\t"));
+    await writeFile(join(path, "entries.json"), JSON.stringify(entries, null, "\t"));
+    await writeFile(join(path, "letters.json"), JSON.stringify([...letters], null, "\t"));
+    await writeFile(join(path, "uniques.json"), JSON.stringify([...uniques], null, "\t"));
 
     if (version.needed) {
-      const nextVersion = getLatestVersion(path) + 1;
+      const nextVersion = (await getLatestVersion(path)) + 1;
 
-      writeFileSync(join(path, `query_v${nextVersion}.sql`), version.sql ?? "");
-      writeFileSync(
+      await writeFile(join(path, `query_v${nextVersion}.sql`), version.sql ?? "");
+      await writeFile(
         join(path, `query_v${nextVersion}.json`),
         JSON.stringify(version.json, null, "\t"),
       );

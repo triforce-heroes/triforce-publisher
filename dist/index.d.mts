@@ -28,8 +28,8 @@ export declare class Publisher {
   resolveLanguage(name: string): string;
   addReference(language: string, resource: string, reference: string, text: string): void;
   getEntries(): PublisherEntry[];
-  dryRun(path: string): PublisherOutput;
-  save(path: string): void;
+  dryRun(path: string): Promise<PublisherOutput>;
+  save(path: string): Promise<void>;
 }
 //#endregion
 //#region src/QueryGenerator.d.ts

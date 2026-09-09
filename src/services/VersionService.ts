@@ -1,4 +1,4 @@
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { readdir, readFile, stat } from "node:fs/promises";
 import { join } from "node:path";
 
 import { regex } from "arkregex";
@@ -9,14 +9,16 @@ import type { VersionHashes } from "#/types/VersionHashes";
 
 const VERSION_PATTERN = regex("^query_v(?<version>\\d+)\\.json$");
 
-function getVersions(path: string) {
+async function getVersions(path: string) {
   const versions: Array<{ path: string; version: number }> = [];
 
-  if (!existsSync(path)) {
+  try {
+    await stat(path);
+  } catch {
     return versions;
   }
 
-  for (const file of readdirSync(path)) {
+  for (const file of await readdir(path)) {
     const match = VERSION_PATTERN.exec(file);
 
     if (match) {
@@ -30,12 +32,20 @@ function getVersions(path: string) {
   return versions.toSorted((versionA, versionB) => versionA.version - versionB.version);
 }
 
-export function getVersionHashes(path: string): VersionHashes {
+export async function getVersionHashes(path: string): Promise<VersionHashes> {
   const hashes = new Map<string, Map<string, string>>();
-  const versions = getVersions(path);
+  const versions = await getVersions(path);
+
+  const reads: Array<Promise<string>> = [];
 
   for (const { path: versionPath } of versions) {
-    const entries = Object.entries(parseAs<MapObject>(readFileSync(versionPath, "utf-8"), {}));
+    reads.push(readFile(versionPath, "utf-8"));
+  }
+
+  const contents = await Promise.all(reads);
+
+  for (const content of contents) {
+    const entries = Object.entries(parseAs<MapObject>(content, {}));
 
     for (const [resource, references] of entries) {
       hashes.set(resource, new Map<string, string>(Object.entries(references)));
@@ -45,6 +55,8 @@ export function getVersionHashes(path: string): VersionHashes {
   return hashes;
 }
 
-export function getLatestVersion(path: string) {
-  return getVersions(path).at(-1)?.version ?? 0;
+export async function getLatestVersion(path: string) {
+  const versions = await getVersions(path);
+
+  return versions.at(-1)?.version ?? 0;
 }

@@ -1,4 +1,4 @@
-import { writeFileSync } from "node:fs";
+import { writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
@@ -7,12 +7,12 @@ import { Publisher } from "#/features/Publisher";
 import { cleanTmpDir, tmpDir } from "#tests/services/FileService";
 
 describe(Publisher, () => {
-  beforeEach(() => {
-    cleanTmpDir();
+  beforeEach(async () => {
+    await cleanTmpDir();
   });
 
-  afterEach(() => {
-    cleanTmpDir();
+  afterEach(async () => {
+    await cleanTmpDir();
   });
 
   describe("addLanguage", () => {
@@ -72,7 +72,9 @@ describe(Publisher, () => {
   });
 
   describe("addReference", () => {
-    it("aggregates references with different texts", () => {
+    it("aggregates references with different texts", async () => {
+      expect.assertions(1);
+
       const publisher = new Publisher(1);
       publisher.addLanguage("pt");
       publisher.addLanguage("en");
@@ -80,7 +82,7 @@ describe(Publisher, () => {
       publisher.addReference("pt", "example.xml", "fruit", "banana");
       publisher.addReference("en", "example.xml", "fruit", "maçã");
 
-      const output = publisher.dryRun(tmpDir);
+      const output = await publisher.dryRun(tmpDir);
 
       expect(output.entries).toStrictEqual([
         {
@@ -94,7 +96,9 @@ describe(Publisher, () => {
       ]);
     });
 
-    it("merges languages with same text", () => {
+    it("merges languages with same text", async () => {
+      expect.assertions(1);
+
       const publisher = new Publisher(1);
       publisher.addLanguage("pt");
       publisher.addLanguage("en");
@@ -102,7 +106,7 @@ describe(Publisher, () => {
       publisher.addReference("pt", "example.xml", "fruit", "banana");
       publisher.addReference("en", "example.xml", "fruit", "banana");
 
-      const output = publisher.dryRun(tmpDir);
+      const output = await publisher.dryRun(tmpDir);
 
       expect(output.entries).toStrictEqual([
         {
@@ -115,13 +119,15 @@ describe(Publisher, () => {
       ]);
     });
 
-    it("resolves language alias", () => {
+    it("resolves language alias", async () => {
+      expect.assertions(1);
+
       const publisher = new Publisher(1);
       publisher.addLanguage("ja", "jp");
 
       publisher.addReference("ja", "example.xml", "fruit", "バナナ");
 
-      const output = publisher.dryRun(tmpDir);
+      const output = await publisher.dryRun(tmpDir);
 
       expect(output.entries).toStrictEqual([
         {
@@ -155,42 +161,50 @@ describe(Publisher, () => {
       );
     });
 
-    it("allows same text for different references", () => {
+    it("allows same text for different references", async () => {
+      expect.assertions(1);
+
       const publisher = new Publisher(1);
       publisher.addLanguage("pt");
 
       publisher.addReference("pt", "example.xml", "fruit", "banana");
       publisher.addReference("pt", "example.xml", "other", "banana");
 
-      const output = publisher.dryRun(tmpDir);
+      const output = await publisher.dryRun(tmpDir);
       expect(output.entries).toHaveLength(2);
     });
   });
 
   describe("dryRun", () => {
-    it("returns correct letters as Set<number>", () => {
+    it("returns correct letters as Set<number>", async () => {
+      expect.assertions(1);
+
       const publisher = new Publisher(1);
       publisher.addLanguage("en");
 
       publisher.addReference("en", "", "test", "ab");
 
-      const output = publisher.dryRun(tmpDir);
+      const output = await publisher.dryRun(tmpDir);
 
       expect(output.letters).toStrictEqual(new Set([97, 98]));
     });
 
-    it("returns sorted letters", () => {
+    it("returns sorted letters", async () => {
+      expect.assertions(1);
+
       const publisher = new Publisher(1);
       publisher.addLanguage("en");
 
       publisher.addReference("en", "", "test", "ba");
 
-      const output = publisher.dryRun(tmpDir);
+      const output = await publisher.dryRun(tmpDir);
 
       expect([...output.letters]).toStrictEqual([97, 98]);
     });
 
-    it("returns unique texts as Set<string>", () => {
+    it("returns unique texts as Set<string>", async () => {
+      expect.assertions(1);
+
       const publisher = new Publisher(1);
       publisher.addLanguage("pt");
       publisher.addLanguage("en");
@@ -199,18 +213,20 @@ describe(Publisher, () => {
       publisher.addReference("en", "", "fruit", "banana");
       publisher.addReference("pt", "", "animal", "gato");
 
-      const output = publisher.dryRun(tmpDir);
+      const output = await publisher.dryRun(tmpDir);
 
       expect(output.uniques).toStrictEqual(new Set(["banana", "gato"]));
     });
 
-    it("returns entries with empty resource name", () => {
+    it("returns entries with empty resource name", async () => {
+      expect.assertions(1);
+
       const publisher = new Publisher(1);
       publisher.addLanguage("en");
 
       publisher.addReference("en", "", "hello", "world");
 
-      const output = publisher.dryRun(tmpDir);
+      const output = await publisher.dryRun(tmpDir);
 
       expect(output.entries).toStrictEqual([
         {
@@ -221,45 +237,53 @@ describe(Publisher, () => {
       ]);
     });
 
-    it("version.needed is true with entries and SQL starts with INSERT", () => {
+    it("version.needed is true with entries and SQL starts with INSERT", async () => {
+      expect.assertions(3);
+
       const publisher = new Publisher(1);
       publisher.addLanguage("en");
 
       publisher.addReference("en", "", "hello", "world");
 
-      const output = publisher.dryRun(tmpDir);
+      const output = await publisher.dryRun(tmpDir);
 
       expect(output.version.needed).toBe(true);
       expect(output.version.sql).toStrictEqual(expect.stringContaining("INSERT INTO"));
-      expect(output.version.json).toBe(true);
+      expect(output.version.json).not.toBeNull();
     });
 
-    it("version.needed is false with no entries", () => {
+    it("version.needed is false with no entries", async () => {
+      expect.assertions(3);
+
       const publisher = new Publisher(1);
-      const output = publisher.dryRun(tmpDir);
+      const output = await publisher.dryRun(tmpDir);
 
       expect(output.version.needed).toBe(false);
       expect(output.version.sql).toBeNull();
       expect(output.version.json).toBeNull();
     });
 
-    it("computes hashes for all entries", () => {
+    it("computes hashes for all entries", async () => {
+      expect.assertions(1);
+
       const publisher = new Publisher(1);
       publisher.addLanguage("en");
 
       publisher.addReference("en", "test.dat", "hello", "world");
 
-      const output = publisher.dryRun(tmpDir);
+      const output = await publisher.dryRun(tmpDir);
 
       expect(output.version.hashes).toStrictEqual({
         "test.dat": {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-          hello: expect.stringMatching(/^[0-9a-f]{64}$/),
+          // oxlint-disable-next-line typescript/no-unsafe-assignment
+          hello: expect.stringMatching(/^[0-9a-f]{64}$/v),
         },
       });
     });
 
-    it("multiple resources", () => {
+    it("multiple resources", async () => {
+      expect.assertions(1);
+
       const publisher = new Publisher(1);
       publisher.addLanguage("pt");
       publisher.addLanguage("en");
@@ -267,7 +291,7 @@ describe(Publisher, () => {
       publisher.addReference("pt", "a.xml", "hello", "olá");
       publisher.addReference("en", "b.xml", "hello", "hello");
 
-      const output = publisher.dryRun(tmpDir);
+      const output = await publisher.dryRun(tmpDir);
 
       expect(output.entries).toStrictEqual([
         {
@@ -283,13 +307,15 @@ describe(Publisher, () => {
       ]);
     });
 
-    it("SQL contains resource and reference values", () => {
+    it("SQL contains resource and reference values", async () => {
+      expect.assertions(2);
+
       const publisher = new Publisher(1);
       publisher.addLanguage("en");
 
       publisher.addReference("en", "data.dat", "dialog.IDD_EDITBOX.caption", "Edit");
 
-      const output = publisher.dryRun(tmpDir);
+      const output = await publisher.dryRun(tmpDir);
 
       expect(output.version.sql).toStrictEqual(expect.stringContaining("data.dat"));
       expect(output.version.sql).toStrictEqual(
@@ -299,7 +325,9 @@ describe(Publisher, () => {
   });
 
   describe("versioning", () => {
-    it("detects no changes on second dryRun with same data", () => {
+    it("detects no changes on second dryRun with same data", async () => {
+      expect.assertions(3);
+
       const publisher = new Publisher(1);
       publisher.addLanguage("pt");
       publisher.addLanguage("en");
@@ -307,75 +335,86 @@ describe(Publisher, () => {
       publisher.addReference("pt", "example.xml", "fruit", "banana");
       publisher.addReference("en", "example.xml", "fruit", "banana");
 
-      const first = publisher.dryRun(tmpDir);
+      const first = await publisher.dryRun(tmpDir);
 
-      if (first.version.needed && first.version.json) {
-        writeFileSync(
-          join(tmpDir, "query_v1.json"),
-          JSON.stringify(first.version.json, null, "\t"),
-        );
-      }
+      expect(first.version.needed).toBe(true);
+      expect(first.version.json).not.toBeNull();
 
-      const second = publisher.dryRun(tmpDir);
+      await writeFile(
+        join(tmpDir, "query_v1.json"),
+        JSON.stringify(first.version.json, null, "\t"),
+      );
+
+      const second = await publisher.dryRun(tmpDir);
 
       expect(second.version.needed).toBe(false);
     });
 
-    it("detects changes on second dryRun with new entry", () => {
+    it("detects changes on second dryRun with new entry", async () => {
+      expect.assertions(3);
+
       const publisher = new Publisher(1);
       publisher.addLanguage("pt");
       publisher.addLanguage("en");
 
       publisher.addReference("pt", "example.xml", "fruit", "banana");
 
-      const first = publisher.dryRun(tmpDir);
+      const first = await publisher.dryRun(tmpDir);
 
-      if (first.version.needed && first.version.json) {
-        writeFileSync(
-          join(tmpDir, "query_v1.json"),
-          JSON.stringify(first.version.json, null, "\t"),
-        );
-      }
+      expect(first.version.needed).toBe(true);
+      expect(first.version.json).not.toBeNull();
+
+      await writeFile(
+        join(tmpDir, "query_v1.json"),
+        JSON.stringify(first.version.json, null, "\t"),
+      );
 
       publisher.addReference("en", "example.xml", "fruit", "banana");
 
-      const second = publisher.dryRun(tmpDir);
+      const second = await publisher.dryRun(tmpDir);
 
       expect(second.version.needed).toBe(true);
     });
 
-    it("merges multiple version files", () => {
+    it("merges multiple version files", async () => {
+      expect.assertions(4);
+
       const publisher = new Publisher(1);
       publisher.addLanguage("pt");
 
       publisher.addReference("pt", "data.dat", "ref_a", "alpha");
 
-      const v1 = publisher.dryRun(tmpDir);
+      const first = await publisher.dryRun(tmpDir);
 
-      writeFileSync(join(tmpDir, "query_v1.json"), JSON.stringify(v1.version.json, null, "\t"));
+      await writeFile(
+        join(tmpDir, "query_v1.json"),
+        JSON.stringify(first.version.json, null, "\t"),
+      );
 
       publisher.addReference("pt", "data.dat", "ref_b", "beta");
 
-      const v2Hashes = {
+      const secondHashes = {
         "data.dat": {
-          ref_a: v1.version.hashes["data.dat"]!["ref_a"]!,
+          ref_a: first.version.hashes["data.dat"]!["ref_a"]!,
           ref_b: "newhash",
         },
       };
 
-      writeFileSync(join(tmpDir, "query_v2.json"), JSON.stringify(v2Hashes, null, "\t"));
+      await writeFile(join(tmpDir, "query_v2.json"), JSON.stringify(secondHashes, null, "\t"));
 
       publisher.addReference("pt", "data.dat", "ref_c", "gamma");
 
-      const v3 = publisher.dryRun(tmpDir);
+      const third = await publisher.dryRun(tmpDir);
 
-      expect(v3.version.needed).toBe(true);
-      expect(v3.version.hashes["data.dat"]).toHaveProperty("ref_a");
-      expect(v3.version.hashes["data.dat"]).toHaveProperty("ref_b");
-      expect(v3.version.hashes["data.dat"]).toHaveProperty("ref_c");
+      expect(third.version.needed).toBe(true);
+      expect(third.version.hashes["data.dat"]).toHaveProperty("ref_a");
+      expect(third.version.hashes["data.dat"]).toHaveProperty("ref_b");
+      expect(third.version.hashes["data.dat"]).toHaveProperty("ref_c");
     });
 
-    it("SQL output matches expected structure", () => {
+    it("SQL output matches expected structure", async () => {
+      expect.assertions(3);
+
       const publisher = new Publisher(1);
       publisher.addLanguage("pt");
       publisher.addLanguage("en");
@@ -383,18 +422,20 @@ describe(Publisher, () => {
       publisher.addReference("pt", "test.xml", "hello", "olá");
       publisher.addReference("en", "test.xml", "hello", "hello");
 
-      const output = publisher.dryRun(tmpDir);
+      const output = await publisher.dryRun(tmpDir);
 
       expect(output.version.sql).toStrictEqual(
-        expect.stringMatching(/^INSERT INTO `projectEntries`/),
+        expect.stringMatching(/^INSERT INTO "projectEntries"/v),
       );
-      expect(output.version.sql).toStrictEqual(expect.stringMatching(/ON CONFLICT/));
-      expect(output.version.sql).toStrictEqual(expect.stringMatching(/DO UPDATE SET/));
+      expect(output.version.sql).toStrictEqual(expect.stringMatching(/ON CONFLICT/v));
+      expect(output.version.sql).toStrictEqual(expect.stringMatching(/DO UPDATE SET/v));
     });
   });
 
   describe("seed test", () => {
-    it("handles 1000 items, +200 new, +100 modified", () => {
+    it("handles 1000 items, +200 new, +100 modified", async () => {
+      expect.assertions(12);
+
       const publisher = new Publisher(9);
       publisher.addLanguage("en");
       publisher.addLanguage("pt");
@@ -410,38 +451,44 @@ describe(Publisher, () => {
         publisher.addReference("ja", "resource-b.dat", `ref_${i}`, `text_jp_${i}`);
       }
 
-      const v1 = publisher.dryRun(tmpDir);
+      const first = await publisher.dryRun(tmpDir);
 
-      expect(v1.entries).toHaveLength(1000);
-      expect(v1.version.needed).toBe(true);
-      expect(v1.version.sql).toStrictEqual(expect.stringContaining("INSERT INTO"));
-      expect(v1.version.sql).toStrictEqual(expect.stringContaining("resource-a.dat"));
-      expect(v1.version.sql).toStrictEqual(expect.stringContaining("resource-b.dat"));
+      expect(first.entries).toHaveLength(1000);
+      expect(first.version.needed).toBe(true);
+      expect(first.version.sql).toStrictEqual(expect.stringContaining("INSERT INTO"));
+      expect(first.version.sql).toStrictEqual(expect.stringContaining("resource-a.dat"));
+      expect(first.version.sql).toStrictEqual(expect.stringContaining("resource-b.dat"));
 
-      writeFileSync(join(tmpDir, "query_v1.json"), JSON.stringify(v1.version.json, null, "\t"));
+      await writeFile(
+        join(tmpDir, "query_v1.json"),
+        JSON.stringify(first.version.json, null, "\t"),
+      );
 
       for (let i = 0; i < 200; i++) {
         publisher.addReference("en", "resource-c.dat", `new_${i}`, `new_text_${i}`);
       }
 
-      const v2 = publisher.dryRun(tmpDir);
+      const second = await publisher.dryRun(tmpDir);
 
-      expect(v2.entries).toHaveLength(1200);
-      expect(v2.version.needed).toBe(true);
-      expect(v2.version.sql).toStrictEqual(expect.stringContaining("resource-c.dat"));
-      expect(v2.version.sql).not.toStrictEqual(expect.stringContaining("resource-a.dat"));
+      expect(second.entries).toHaveLength(1200);
+      expect(second.version.needed).toBe(true);
+      expect(second.version.sql).toStrictEqual(expect.stringContaining("resource-c.dat"));
+      expect(second.version.sql).not.toStrictEqual(expect.stringContaining("resource-a.dat"));
 
-      writeFileSync(join(tmpDir, "query_v2.json"), JSON.stringify(v2.version.json, null, "\t"));
+      await writeFile(
+        join(tmpDir, "query_v2.json"),
+        JSON.stringify(second.version.json, null, "\t"),
+      );
 
       for (let i = 0; i < 100; i++) {
         publisher.addReference("en", "resource-a.dat", `ref_${i}`, `modified_en_${i}`);
       }
 
-      const v3 = publisher.dryRun(tmpDir);
+      const third = await publisher.dryRun(tmpDir);
 
-      expect(v3.version.needed).toBe(true);
-      expect(v3.version.sql).toStrictEqual(expect.stringContaining("resource-a.dat"));
-      expect(v3.version.sql).not.toStrictEqual(expect.stringContaining("resource-c.dat"));
+      expect(third.version.needed).toBe(true);
+      expect(third.version.sql).toStrictEqual(expect.stringContaining("resource-a.dat"));
+      expect(third.version.sql).not.toStrictEqual(expect.stringContaining("resource-c.dat"));
     });
   });
 });
