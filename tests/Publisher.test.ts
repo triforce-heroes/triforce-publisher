@@ -425,7 +425,7 @@ describe(Publisher, () => {
       const output = await publisher.dryRun(tmpDir);
 
       expect(output.version.sql).toStrictEqual(
-        expect.stringMatching(/^INSERT INTO "projectEntries"/v),
+        expect.stringMatching(/^INSERT INTO `projectEntries`/v),
       );
       expect(output.version.sql).toStrictEqual(expect.stringMatching(/ON CONFLICT/v));
       expect(output.version.sql).toStrictEqual(expect.stringMatching(/DO UPDATE SET/v));

@@ -5,6 +5,7 @@
     "": {
       "name": "@triforce-heroes/triforce-publisher",
       "dependencies": {
+        "@rheactor/rheactor-core": "github:@rheactor/rheactor-core",
         "@rheactor/rheactor-query-builder": "github:rheactor/rheactor-query-builder",
         "@triforce-heroes/triforce-core": "github:triforce-heroes/triforce-core",
         "arkregex": "^0.0.8",
@@ -124,9 +125,11 @@
 
     "@quansync/fs": ["@quansync/fs@1.0.0", "", { "dependencies": { "quansync": "^1.0.0" } }, "sha512-4TJ3DFtlf1L5LDMaM6CanJ/0lckGNtJcMjQ1NAV6zDmA0tEHKZtxNKin8EgPaVX1YzljbxckyT2tJrpQKAtngQ=="],
 
+    "@rheactor/rheactor-core": ["@rheactor/rheactor-core@github:rheactor/rheactor-core#546e467", { "dependencies": { "is-path-inside": "^4.0.0" }, "peerDependencies": { "next": "^16.3.4", "tailwind-merge": "^3.6.0" }, "optionalPeers": ["next", "tailwind-merge"] }, "rheactor-rheactor-core-546e467", "sha512-oC9laPM22st8VeWDuqngEbxxK2pahOTTClqzyJFjlf9hlADzrfgeSaq3eZe6zZ4r9awz9QdIM3B2RDdX/nr9cw=="],
+
     "@rheactor/rheactor-oxc-config": ["@rheactor/rheactor-oxc-config@github:rheactor/rheactor-oxc-config#3afc4d6", { "dependencies": { "oxfmt": "^0.67.0", "oxlint": "^1.82.0", "oxlint-tsgolint": "^7.0.2001" }, "peerDependencies": { "next": "^16.3.4", "react": "^19.2.8", "vitest": "^5.0.0" }, "optionalPeers": ["next", "react", "vitest"] }, "rheactor-rheactor-oxc-config-3afc4d6", "sha512-YXoTPu+EH1zdJsoTTSHrJfN4INm1D3t+i9xVGwJV4GNNn4F1Z+CD7Cjq30yJ3I390FeaVa8yQ16mvC22DvO/vA=="],
 
-    "@rheactor/rheactor-query-builder": ["@rheactor/rheactor-pg-query-builder@github:rheactor/rheactor-query-builder#f5f2f0c", {}, "rheactor-rheactor-query-builder-f5f2f0c", "sha512-LcJ1pyW8RrPxLjRKW+vDosQi51Tw1Q+26YwsaukhpL/LZUOzA4accxfLIoaDdw1ATMuJHI0dwczqye5Mtvjmgg=="],
+    "@rheactor/rheactor-query-builder": ["@rheactor/rheactor-query-builder@github:rheactor/rheactor-query-builder#b70ba4b", {}, "rheactor-rheactor-query-builder-b70ba4b", "sha512-a6Pzu9t3syWSOKRtXWgj2jFmq1ew7x7Hgc43QmCtQbbE0srmswZbowCxMnS42aTntRKuhGN48DIOcDX36J5Pqw=="],
 
     "@rolldown/binding-android-arm-eabi": ["@rolldown/binding-android-arm-eabi@1.2.7", "", { "os": "android", "cpu": "arm" }, "sha512-EypzgnYCwyVY4NDHKzGmNJT5b+XaQEBniHxsMdeIQLB/tcCzZnhqrzHpZFbX9iaxx+5RiB8caATBtfvZP7zVxQ=="],
 
@@ -303,6 +306,8 @@
     "hookable": ["hookable@6.1.1", "", {}, "sha512-U9LYDy1CwhMCnprUfeAZWZGByVbhd54hwepegYTK7Pi5NvqEj63ifz5z+xukznehT7i6NIZRu89Ay1AZmRsLEQ=="],
 
     "import-without-cache": ["import-without-cache@0.4.0", "", {}, "sha512-NkJQA7oZ4YHQhd2+H3BoRFKF3d/XNsiKpHZCQEMH9pDX27hQQLsTyOocyRgaIVtf8gHX3Nt3LPkR4e5EdtPAGQ=="],
+
+    "is-path-inside": ["is-path-inside@4.0.0", "", {}, "sha512-lJJV/5dYS+RcL8uQdBDW9c9uWFLLBNRyFhnAKXw5tVqLlKZ4RMGZKv+YQ/IA3OhD+RpbJa1LLFM1FQPGyIXvOA=="],
 
     "json-diff": ["json-diff@1.0.6", "", { "dependencies": { "@ewoudenberg/difflib": "0.1.0", "colors": "^1.4.0", "dreamopt": "~0.8.0" }, "bin": { "json-diff": "bin/json-diff.js" } }, "sha512-tcFIPRdlc35YkYdGxcamJjllUhXWv4n2rK9oJ2RsAzV4FBkuV4ojKEDgcZ+kpKxDmJKv+PFK65+1tVVOnSeEqA=="],
 

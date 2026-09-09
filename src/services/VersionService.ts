@@ -1,9 +1,10 @@
-import { readdir, readFile, stat } from "node:fs/promises";
+import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 
+import { parseAs } from "@rheactor/rheactor-core";
+import { exists } from "@rheactor/rheactor-core/node";
 import { regex } from "arkregex";
 
-import { parseAs } from "#/services/JsonService";
 import type { MapObject } from "#/types/MapObject";
 import type { VersionHashes } from "#/types/VersionHashes";
 
@@ -12,9 +13,7 @@ const VERSION_PATTERN = regex("^query_v(?<version>\\d+)\\.json$");
 async function getVersions(path: string) {
   const versions: Array<{ path: string; version: number }> = [];
 
-  try {
-    await stat(path);
-  } catch {
+  if (!(await exists(path))) {
     return versions;
   }
 

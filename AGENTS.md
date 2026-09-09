@@ -1,176 +1,116 @@
 # AGENTS.md
 
-## Overview
+## 1. Project overview
 
 `@triforce-heroes/triforce-publisher` generates SQL upsert queries and versioned output files for
 the TAPP translation platform. It manages multilingual text entries organized by resource and
 reference, with incremental versioning that only emits changed entries.
 
-## Directory Structure
+Stack: strict TypeScript (ESM), Bun, tsdown, oxlint/oxfmt, Vitest.
+
+Single entry point: `src/index.ts` bundles to `dist/index.mjs` (+ `dist/index.d.mts`, platform
+`node`). Public exports: `Publisher`, `queryGenerator`.
 
 ```
 src/
   features/
-    Publisher.ts          # Main class — orchestrates everything
-    PublisherResource.ts  # Represents a single resource file with its references
+    Publisher.ts          # Publisher class — orchestrates everything
   services/
     HashService.ts        # SHA-256 hashing
-    JsonService.ts        # Safe JSON.parse with default value
     MapService.ts         # Map<string, Map<string, string>> → Record conversion
-    VersionService.ts     # Reads/merges versioned query_v{N}.json files
+    VersionService.ts     # Async reads/merges of versioned query_v{N}.json files
   types/
     MapObject.ts          # Record<string, Record<string, string>>
     PublisherEntry.ts     # { resource, reference, sources }
     PublisherOutput.ts    # Full output of dryRun()
     VersionHashes.ts      # Map<string, Map<string, string>>
-  QueryGenerator.ts       # SQL INSERT builder using rheactor-query-builder
+  QueryGenerator.ts       # queryGenerator + GeneratorEntry (PostgreSQL upsert SQL)
   index.ts                # Public exports: Publisher, queryGenerator
 tests/
-  Publisher.test.ts       # Tests for Publisher + PublisherResource
+  Publisher.test.ts       # Tests for Publisher
   VersionService.test.ts  # Tests for version file merging logic
   QueryGenerator.test.ts  # Tests for SQL generation
-  services/tmp/           # Shared temp dir for tests (cleaned before/after each test)
+  services/
+    FileService.ts        # tmpDir + async cleanTmpDir() helper
+    tmp/                  # Shared temp dir for tests (only .gitignore is committed)
 ```
 
-## Architecture
+## 2. Mandatory rules
 
-### Publisher (entry point)
+1. New file placement: orchestration in `src/features/`, I/O and pure logic in
+   `src/services/<Name>Service.ts`, shared shapes in `src/types/`. Only `src/index.ts` exports are
+   public API.
+2. Internal imports use the `#/` alias (`./src/*`); tests may additionally use `#tests/*`
+   (`./tests/*`). Import order and formatting belong to oxfmt — never hand-order imports.
+3. `type` imports use `import type { ... }`.
+4. `public` modifier on all class methods.
+5. Error messages: lowercase, no trailing period — `language "x" is not registered`.
+6. Use `parseAs<T>()` and `exists()` from `@rheactor/rheactor-core` instead of raw `JSON.parse()`
+   and `node:fs` existence checks; use `arkregex` instead of raw `RegExp`; use
+   `Object.fromEntries()` for Map-to-object conversion.
+7. `Publisher` I/O is async: `dryRun(path): Promise<PublisherOutput>`, `save(path): Promise<void>`,
+   `getVersionHashes`/`getLatestVersion` return promises.
+8. Data flow: `addLanguage(name, canonical?)` registers a language (alias resolves to canonical);
+   `publisher.addReference(language, resource, reference, text)` merges same texts across languages
+   and throws on duplicates; `await publisher.dryRun(path)` computes without writing;
+   `await publisher.save(path)` writes `entries.json`, `letters.json`, `uniques.json` plus
+   `query_v{N}.sql`/`.json` only for changed entries (chunks of 100).
+9. Error contract: `addLanguage` throws if name or canonical is already registered;
+   `resolveLanguage` throws if language is not registered; `addReference` throws if the same
+   language+reference+text is added twice.
+10. `README.md`, `AGENTS.md`, and `CHANGELOG.md` are maintained by the `/create-agents` skill, which
+    audits them against the code. Never generate or regenerate them with ad hoc scripts.
 
-```ts
-const publisher = new Publisher(projectId);
-publisher.addLanguage("en");
-publisher.addLanguage("ja", "jp"); // "ja" is an alias, "jp" is canonical
-publisher.addLanguage("pt");
+## 3. Testing policy
 
-const resource = publisher.createResource("dialogs.xml");
-resource.addReference("en", "IDD_DIALOG.title", "Hello");
-resource.addReference("ja", "IDD_DIALOG.title", "こんにちは");
-resource.addReference("pt", "IDD_DIALOG.title", "Olá");
+- Framework: Vitest, always executed through `bun run test` (single run) or `bun run test:watch`.
+- Tests live in `tests/*.test.ts`, mirroring the `src` file name; shared fixtures live in
+  `tests/services/FileService.ts` (`tmpDir`, `cleanTmpDir()`).
+- Test files run sequentially (`fileParallelism: false` in vitest.config.ts) because they share
+  `tests/tmp/`; it is cleaned (except `.gitignore`) before and after each test.
+- Every async test opens with `expect.assertions(N)` carrying the exact assertion count.
+- Use `await publisher.dryRun(tmpDir)` in tests — it needs a path to read existing version files.
+- Use `expect.stringContaining()` or `expect.stringMatching()` for SQL assertions; use `Set`
+  comparisons for `letters` and `uniques`.
+- No coverage threshold is configured; do not introduce one without need.
+- Every bug fix MUST include a regression test that reproduces the bug before the fix.
 
-await publisher.save("./output");
-```
+## 4. Documentation format
 
-### Data flow
+README API entries use `### name` followed by a TypeScript signature code block (every overload in
+the same block), one to three sentences (what it does, when to use it, notable edge-case behavior),
+then a minimal TypeScript example with the expected output as a comment. Entries are grouped under
+`##` headings per area (`Publisher`, `QueryGenerator`, `Types`), methods ordered as declared in
+code.
 
-1. `addLanguage(name, canonical?)` — registers a language. If `canonical` is provided, `name`
-   becomes an alias that resolves to `canonical`. Both map to the canonical internally.
-2. `createResource(name)` — creates a `PublisherResource` bound to this publisher. Throws if name
-   already exists.
-3. `resource.addReference(language, reference, text)` — adds a text for a given language+reference
-   combination. If the same text is added for different languages, they merge into one entry
-   (`{ "banana": ["pt", "en"] }`). Throws if the same language+reference+text combination is added
-   twice.
-4. `dryRun(path)` — computes all outputs without writing to disk. Returns
-   `Promise<PublisherOutput>`.
-5. `save(path)` — awaits `dryRun`, then writes all files to disk. Returns `Promise<void>`.
+## 5. Dependency policy
 
-### Versioning system
+- Bun is the official package manager (`bun.lock`); install with `bun install`.
+- Zero new runtime dependencies without justification. Org packages use `github:` specs
+  (`@rheactor/*`, `@triforce-heroes/*`).
 
-Each `save()` or `dryRun()` call compares current entries against previously saved version files:
+## 6. Build and publish
 
-- `query_v{N}.json` — snapshot of all entry hashes at version N (key: resource → reference → sha256)
-- `query_v{N}.sql` — SQL containing only entries that changed since the previous version
+- `tsdown` bundles `src/index.ts` into `dist/` (platform `node`, minified, `.mjs` + `.d.mts`);
+  `bun run build` runs lint and tests first.
+- Only `dist/` is published to npm.
 
-The system reads all `query_v*.json` files from v1 to the latest, merges them (later versions
-overwrite earlier ones for the same resource), and diffs against current hashes. Only changed
-entries produce SQL output.
+## 7. Quality gates
 
-**Important:** each version file is an incremental overlay, not a full snapshot. If resource A
-appears in v1 and v2, v2's data overwrites v1's for that resource. If resource B only appears in v1,
-it persists in the merged result.
-
-### Output files
-
-| File              | Content                                                              |
-| ----------------- | -------------------------------------------------------------------- |
-| `entries.json`    | `PublisherEntry[]` — all entries with resource, reference, sources   |
-| `letters.json`    | `number[]` — sorted unique Unicode code points from all source texts |
-| `uniques.json`    | `string[]` — all unique source texts across all entries              |
-| `query_v{N}.json` | `Record<resource, Record<reference, sha256>>` — hash snapshot        |
-| `query_v{N}.sql`  | SQL INSERT with ON CONFLICT upsert (chunked in groups of 100)        |
-
-## Key Types
-
-```ts
-interface PublisherEntry {
-  resource: string; // "" if no resource name
-  reference: string; // e.g. "IDD_DIALOG.title"
-  sources: Record<string, string[]>; // { "Hello": ["en"], "Olá": ["pt"] }
-}
-
-interface PublisherOutput {
-  entries: PublisherEntry[];
-  letters: Set<number>; // sorted code points
-  uniques: Set<string>; // unique texts
-  version: {
-    needed: boolean; // true if there are changes vs previous versions
-    sql: string | null; // null if !needed
-    json: Record<string, Record<string, string>> | null; // null if !needed
-    hashes: Record<string, Record<string, string>>; // always present
-  };
-}
-
-type VersionHashes = Map<string, Map<string, string>>; // resource → reference → hash
-type MapObject = Record<string, Record<string, string>>; // JSON-serializable VersionHashes
-```
-
-## Dependencies
-
-- `@rheactor/rheactor-query-builder` — SQL DSL for building INSERT queries
-- `@triforce-heroes/triforce-core` — `chunk()` utility for splitting arrays
-- `arkregex` — typed regex with named groups (used in VersionService)
-
-## Conventions
-
-### Code style
-
-- Strict TypeScript (`strict: true`, `noUncheckedIndexedAccess`,
-  `noPropertyAccessFromIndexSignature`)
-- ESM only (`"type": "module"`)
-- Path aliases: `#/*` → `./src/*`, `#tests/*` → `./tests/*`
-- `public` modifier on all class methods
-- Error messages: lowercase, no trailing period — `language "x" is not registered`
-- Use `Map.getOrInsert()` instead of manual `has`/`set`/`get` pattern where available
-- Use `arkregex` for regex patterns instead of raw `RegExp`
-- Use `parseAs<T>()` instead of raw `JSON.parse()`
-- Use `Object.fromEntries()` for Map-to-object conversion
-
-### Imports
-
-- External deps first, then `#/types/*`, then `#/services/*`, then `#/features/*`, then
-  `#/QueryGenerator`
-- `type` imports use `import type { ... }`
-
-### Error handling
-
-- `addLanguage` throws if name or canonical is already registered
-- `createResource` throws if resource name already exists
-- `resolveLanguage` throws if language is not registered
-- `addReference` throws if same language+reference+text is added twice
-
-## Scripts
+Scripts available in `package.json`:
 
 | Command              | Purpose                                               |
 | -------------------- | ----------------------------------------------------- |
+| `bun run build`      | Lint + test + bundle with tsdown                      |
+| `bun run lint`       | Full lint pipeline (typecheck + oxlint + oxfmt check) |
+| `bun run lint:fix`   | Auto-fix lint issues                                  |
+| `bun run oxfmt`      | Check formatting of `./src ./tests`                   |
+| `bun run oxfmt:fix`  | Format `./src ./tests`                                |
+| `bun run oxlint`     | Lint `./src ./tests`                                  |
+| `bun run oxlint:fix` | Auto-fix lint of `./src ./tests`                      |
 | `bun run test`       | Run tests (vitest, single run, sequential files)      |
 | `bun run test:watch` | Run tests in watch mode                               |
 | `bun run typecheck`  | Type checking without emit                            |
-| `bun run lint`       | Full lint pipeline (typecheck + oxlint + oxfmt check) |
-| `bun run lint:fix`   | Auto-fix lint issues                                  |
-| `bun run build`      | Lint + test + bundle with tsdown                      |
 
-## Testing
-
-- Uses Vitest, always executed through `bun run test` (single run) or `bun run test:watch`
-- Test files run sequentially (`fileParallelism: false` in vitest.config.ts) because they share
-  `tests/tmp/`
-- `tests/tmp/` is cleaned (except `.gitignore`) before and after each test via `cleanTmpDir()`
-- Use `dryRun(tmpDir)` in tests — `dryRun` requires a path to read existing version files
-- Use `expect.stringContaining()` or `expect.stringMatching()` for SQL assertions
-- Use `Set` comparisons for `letters` and `uniques`
-
-## Build
-
-- `tsdown` bundles `src/index.ts` into `dist/` (platform `node`, minified, with `.d.ts`)
-- `bun run build` runs lint and tests first
-- Only `dist/` is published to npm
+> Always use `bun run <script>` (the `package.json` scripts), never a direct binary: bare
+> `bunx vitest`, for instance, bypasses the project's pinned toolchain.

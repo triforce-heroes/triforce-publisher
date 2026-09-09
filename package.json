@@ -30,6 +30,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@rheactor/rheactor-core": "github:@rheactor/rheactor-core",
     "@rheactor/rheactor-query-builder": "github:rheactor/rheactor-query-builder",
     "@triforce-heroes/triforce-core": "github:triforce-heroes/triforce-core",
     "arkregex": "^0.0.8"
