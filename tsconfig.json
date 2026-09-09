@@ -4,23 +4,23 @@
     "declaration": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "isolatedModules": false,
+    "isolatedModules": true,
     "lib": ["ESNext"],
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "noImplicitReturns": true,
     "noPropertyAccessFromIndexSignature": true,
     "noUncheckedIndexedAccess": true,
-    "outDir": "dist",
     "skipLibCheck": true,
     "strict": true,
     "target": "ESNext",
     "types": ["node"],
-
-    "paths": { "#/*": ["./src/*"], "#tests/*": ["./tests/*"] },
-    "plugins": [{ "transform": "typescript-transform-paths", "afterDeclarations": true }]
+    "paths": {
+      "#/*": ["./src/*.ts"],
+      "#tests/*": ["./tests/*"]
+    }
   },
 
-  "include": ["**/*.ts"],
+  "include": ["**/*.ts", "tests/**/*.ts", "vitest.config.ts"],
   "exclude": ["dist", "node_modules"]
 }

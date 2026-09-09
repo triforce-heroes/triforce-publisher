@@ -3,9 +3,8 @@ import { join } from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { cleanTmpDir, tmpDir } from "#tests/services/FileService.js";
-
 import { getLatestVersion, getVersionHashes } from "#/services/VersionService";
+import { cleanTmpDir, tmpDir } from "#tests/services/FileService.js";
 
 describe("VersionService", () => {
   beforeEach(() => {
@@ -16,7 +15,7 @@ describe("VersionService", () => {
     cleanTmpDir();
   });
 
-  describe("getLatestVersion", () => {
+  describe(getLatestVersion, () => {
     it("returns 0 when directory is empty", () => {
       expect(getLatestVersion(tmpDir)).toBe(0);
     });
@@ -41,7 +40,7 @@ describe("VersionService", () => {
     });
   });
 
-  describe("getVersionHashes", () => {
+  describe(getVersionHashes, () => {
     it("returns empty Map when no version files exist", () => {
       const hashes = getVersionHashes(tmpDir);
 

@@ -6,7 +6,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { Publisher } from "#/features/Publisher";
 import { cleanTmpDir, tmpDir } from "#tests/services/FileService";
 
-describe("Publisher", () => {
+describe(Publisher, () => {
   beforeEach(() => {
     cleanTmpDir();
   });
@@ -39,7 +39,7 @@ describe("Publisher", () => {
 
       expect(() => {
         publisher.addLanguage("pt");
-      }).toThrowError('language "pt" is already registered');
+      }).toThrow('language "pt" is already registered');
     });
 
     it("throws for duplicate replacement", () => {
@@ -48,7 +48,7 @@ describe("Publisher", () => {
 
       expect(() => {
         publisher.addLanguage("cn", "jp");
-      }).toThrowError('language "jp" is already registered');
+      }).toThrow('language "jp" is already registered');
     });
 
     it("throws when replacement conflicts with existing name", () => {
@@ -57,7 +57,7 @@ describe("Publisher", () => {
 
       expect(() => {
         publisher.addLanguage("ja", "jp");
-      }).toThrowError('language "jp" is already registered');
+      }).toThrow('language "jp" is already registered');
     });
   });
 
@@ -65,7 +65,7 @@ describe("Publisher", () => {
     it("throws for unregistered language", () => {
       const publisher = new Publisher(1);
 
-      expect(() => publisher.resolveLanguage("unknown")).toThrowError(
+      expect(() => publisher.resolveLanguage("unknown")).toThrow(
         'language "unknown" is not registered',
       );
     });
@@ -139,7 +139,7 @@ describe("Publisher", () => {
 
       expect(() => {
         publisher.addReference("unknown", "example.xml", "fruit", "banana");
-      }).toThrowError('language "unknown" is not registered');
+      }).toThrow('language "unknown" is not registered');
     });
 
     it("throws for duplicate same language, resource, reference and text", () => {
@@ -150,7 +150,7 @@ describe("Publisher", () => {
 
       expect(() => {
         publisher.addReference("pt", "example.xml", "fruit", "banana");
-      }).toThrowError(
+      }).toThrow(
         'duplicate reference: language "pt" already has text "banana" for reference "fruit"',
       );
     });
@@ -231,7 +231,7 @@ describe("Publisher", () => {
 
       expect(output.version.needed).toBe(true);
       expect(output.version.sql).toStrictEqual(expect.stringContaining("INSERT INTO"));
-      expect(output.version.json).toBeTruthy();
+      expect(output.version.json).toBe(true);
     });
 
     it("version.needed is false with no entries", () => {

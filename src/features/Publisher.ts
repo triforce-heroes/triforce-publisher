@@ -3,14 +3,13 @@ import { join } from "node:path";
 
 import { chunk } from "@triforce-heroes/triforce-core/Array";
 
-import type { PublisherEntry } from "#/types/PublisherEntry";
-import type { PublisherOutput } from "#/types/PublisherOutput";
-import type { VersionHashes } from "#/types/VersionHashes";
-
 import { queryGenerator } from "#/QueryGenerator";
 import { hash } from "#/services/HashService";
 import { toObject } from "#/services/MapService";
 import { getLatestVersion, getVersionHashes } from "#/services/VersionService";
+import type { PublisherEntry } from "#/types/PublisherEntry";
+import type { PublisherOutput } from "#/types/PublisherOutput";
+import type { VersionHashes } from "#/types/VersionHashes";
 
 export class Publisher {
   private readonly languages = new Map<string, string>();

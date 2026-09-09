@@ -3,10 +3,9 @@ import { join } from "node:path";
 
 import { regex } from "arkregex";
 
+import { parseAs } from "#/services/JsonService";
 import type { MapObject } from "#/types/MapObject";
 import type { VersionHashes } from "#/types/VersionHashes";
-
-import { parseAs } from "#/services/JsonService";
 
 const VERSION_PATTERN = regex("^query_v(?<version>\\d+)\\.json$");
 
@@ -36,7 +35,7 @@ export function getVersionHashes(path: string): VersionHashes {
   const versions = getVersions(path);
 
   for (const { path: versionPath } of versions) {
-    const entries = Object.entries(parseAs<MapObject>(readFileSync(versionPath, "utf8"), {}));
+    const entries = Object.entries(parseAs<MapObject>(readFileSync(versionPath, "utf-8"), {}));
 
     for (const [resource, references] of entries) {
       hashes.set(resource, new Map<string, string>(Object.entries(references)));

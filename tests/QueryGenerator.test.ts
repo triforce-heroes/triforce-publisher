@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 
 import type { GeneratorEntry } from "#/QueryGenerator";
-
 import { queryGenerator } from "#/QueryGenerator";
 
 describe("QueryGenerator", () => {

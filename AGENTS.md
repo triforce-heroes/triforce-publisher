@@ -2,8 +2,9 @@
 
 ## Overview
 
-`@triforce-heroes/triforce-publisher` generates SQL upsert queries and versioned output files for the TAPP translation platform.
-It manages multilingual text entries organized by resource and reference, with incremental versioning that only emits changed entries.
+`@triforce-heroes/triforce-publisher` generates SQL upsert queries and versioned output files for
+the TAPP translation platform. It manages multilingual text entries organized by resource and
+reference, with incremental versioning that only emits changed entries.
 
 ## Directory Structure
 
@@ -51,9 +52,14 @@ publisher.save("./output");
 
 ### Data flow
 
-1. `addLanguage(name, canonical?)` — registers a language. If `canonical` is provided, `name` becomes an alias that resolves to `canonical`. Both map to the canonical internally.
-2. `createResource(name)` — creates a `PublisherResource` bound to this publisher. Throws if name already exists.
-3. `resource.addReference(language, reference, text)` — adds a text for a given language+reference combination. If the same text is added for different languages, they merge into one entry (`{ "banana": ["pt", "en"] }`). Throws if the same language+reference+text combination is added twice.
+1. `addLanguage(name, canonical?)` — registers a language. If `canonical` is provided, `name`
+   becomes an alias that resolves to `canonical`. Both map to the canonical internally.
+2. `createResource(name)` — creates a `PublisherResource` bound to this publisher. Throws if name
+   already exists.
+3. `resource.addReference(language, reference, text)` — adds a text for a given language+reference
+   combination. If the same text is added for different languages, they merge into one entry
+   (`{ "banana": ["pt", "en"] }`). Throws if the same language+reference+text combination is added
+   twice.
 4. `dryRun(path)` — computes all outputs without writing to disk. Returns `PublisherOutput`.
 5. `save(path)` — calls `dryRun`, then writes all files to disk.
 
@@ -64,9 +70,13 @@ Each `save()` or `dryRun()` call compares current entries against previously sav
 - `query_v{N}.json` — snapshot of all entry hashes at version N (key: resource → reference → sha256)
 - `query_v{N}.sql` — SQL containing only entries that changed since the previous version
 
-The system reads all `query_v*.json` files from v1 to the latest, merges them (later versions overwrite earlier ones for the same resource), and diffs against current hashes. Only changed entries produce SQL output.
+The system reads all `query_v*.json` files from v1 to the latest, merges them (later versions
+overwrite earlier ones for the same resource), and diffs against current hashes. Only changed
+entries produce SQL output.
 
-**Important:** each version file is an incremental overlay, not a full snapshot. If resource A appears in v1 and v2, v2's data overwrites v1's for that resource. If resource B only appears in v1, it persists in the merged result.
+**Important:** each version file is an incremental overlay, not a full snapshot. If resource A
+appears in v1 and v2, v2's data overwrites v1's for that resource. If resource B only appears in v1,
+it persists in the merged result.
 
 ### Output files
 
@@ -113,7 +123,8 @@ type MapObject = Record<string, Record<string, string>>; // JSON-serializable Ve
 
 ### Code style
 
-- Strict TypeScript (`strict: true`, `noUncheckedIndexedAccess`, `noPropertyAccessFromIndexSignature`)
+- Strict TypeScript (`strict: true`, `noUncheckedIndexedAccess`,
+  `noPropertyAccessFromIndexSignature`)
 - ESM only (`"type": "module"`)
 - Path aliases: `#/*` → `./src/*`, `#tests/*` → `./tests/*`
 - `public` modifier on all class methods
@@ -125,7 +136,8 @@ type MapObject = Record<string, Record<string, string>>; // JSON-serializable Ve
 
 ### Imports
 
-- External deps first, then `#/types/*`, then `#/services/*`, then `#/features/*`, then `#/QueryGenerator`
+- External deps first, then `#/types/*`, then `#/services/*`, then `#/features/*`, then
+  `#/QueryGenerator`
 - `type` imports use `import type { ... }`
 
 ### Error handling
@@ -139,17 +151,18 @@ type MapObject = Record<string, Record<string, string>>; // JSON-serializable Ve
 
 | Command              | Purpose                                               |
 | -------------------- | ----------------------------------------------------- |
-| `npm test`           | Run tests (vitest, single run, sequential files)      |
-| `npm run test:watch` | Run tests in watch mode                               |
-| `npm run typecheck`  | Type checking without emit                            |
-| `npm run lint`       | Full lint pipeline (typecheck + eslint + oxfmt check) |
-| `npm run lint:fix`   | Auto-fix lint issues                                  |
-| `npm run build`      | Compile TS + minify with SWC                          |
+| `bun run test`       | Run tests (vitest, single run, sequential files)      |
+| `bun run test:watch` | Run tests in watch mode                               |
+| `bun run typecheck`  | Type checking without emit                            |
+| `bun run lint`       | Full lint pipeline (typecheck + oxlint + oxfmt check) |
+| `bun run lint:fix`   | Auto-fix lint issues                                  |
+| `bun run build`      | Lint + test + bundle with tsdown                      |
 
 ## Testing
 
-- Uses Vitest
-- Test files run sequentially (`fileParallelism: false` in vitest.config.mjs) because they share `tests/tmp/`
+- Uses Vitest, always executed through `bun run test` (single run) or `bun run test:watch`
+- Test files run sequentially (`fileParallelism: false` in vitest.config.ts) because they share
+  `tests/tmp/`
 - `tests/tmp/` is cleaned (except `.gitignore`) before and after each test via `cleanTmpDir()`
 - Use `dryRun(tmpDir)` in tests — `dryRun` requires a path to read existing version files
 - Use `expect.stringContaining()` or `expect.stringMatching()` for SQL assertions
@@ -157,7 +170,6 @@ type MapObject = Record<string, Record<string, string>>; // JSON-serializable Ve
 
 ## Build
 
-- `tspc` (TypeScript with ts-patch) compiles `src/**/*.ts` to `dist/`
-- `typescript-transform-paths` rewrites `#/*` → `./*` in emitted JS and `.d.ts`
-- `swc` minifies the JS in `dist/`
+- `tsdown` bundles `src/index.ts` into `dist/` (platform `node`, minified, with `.d.ts`)
+- `bun run build` runs lint and tests first
 - Only `dist/` is published to npm

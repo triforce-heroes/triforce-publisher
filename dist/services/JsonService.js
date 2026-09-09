@@ -1,1 +1,0 @@
-export function parseAs(r,t){try{return JSON.parse(r)}catch{return t}}
