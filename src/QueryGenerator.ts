@@ -34,7 +34,7 @@ export function queryGenerator(projectId: number, entries: GeneratorEntry[], upd
       sql.staticValue(entry.resource ?? null),
       sql.staticValue(entry.reference),
       sql.jsonStaticValue(entry.sources),
-      metadata === undefined ? sql.staticValue(null) : sql.jsonStaticValue({ metadata }),
+      metadata === undefined ? sql.staticValue(null) : sql.jsonStaticValue(metadata),
       date,
     );
   }

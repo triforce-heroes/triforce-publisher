@@ -84,7 +84,7 @@ Adds a source text for a language+resource+reference combination. The same text 
 languages merges into one entry (`{ banana: ["pt", "en"] }`). Throws on unregistered languages and
 when the same language+reference+text combination is added twice. An optional plain-object
 `metadata` is stored on the entry as its absolute value (last write wins, empty objects count as
-absent); it is emitted as `{"metadata": {...}}` so `metadata.metadata` is always an object.
+absent); it is emitted as-is as the full JSON value of the `metadata` column.
 
 ```ts
 publisher.addReference("en", "dialogs.xml", "IDD_DIALOG.title", "Hello", { level: 5 });
@@ -144,7 +144,7 @@ queryGenerator(projectId: number, entries: GeneratorEntry[], updatedAt?: number)
 
 Builds a PostgreSQL upsert (`INSERT ... ON CONFLICT DO UPDATE`) for `projectEntries` rows. Changed
 `sources` reset the translation columns to `NULL`. The `INSERT` includes the `metadata` column
-(`NULL` when the entry has none, `{"metadata": {...}}` otherwise); on conflict, provided metadata is
+(`NULL` when the entry has none, the full JSON object otherwise); on conflict, provided metadata is
 deep-merged into the stored JSON via `JSON_PATCH`, preserving unrelated keys, while absent metadata
 keeps the previous value (or resets it when `sources` changed). Returns `null` when `entries` is
 empty; defaults `updatedAt` to `Date.now()`. You rarely call this directly; `dryRun`/`save` chunk
@@ -169,8 +169,8 @@ interface GeneratorEntry {
 ```
 
 One row fed to `queryGenerator`: the resource file (absent becomes SQL `NULL`), the reference key,
-the per-text language lists, and the optional metadata object (emitted as `{"metadata": {...}}`;
-empty counts as absent).
+the per-text language lists, and the optional metadata object (emitted as-is as full JSON; empty
+counts as absent).
 
 ### PublisherEntry
 

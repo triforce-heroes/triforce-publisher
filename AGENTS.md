@@ -55,7 +55,8 @@ tests/
    `publisher.addReference(language, resource, reference, text, metadata?)` merges same texts across
    languages and throws on duplicates; an optional plain-object `metadata` is stored as the entry's
    absolute value (last write wins, empty objects count as absent) and normalized by
-   `normalizeMetadata`; `await publisher.dryRun(path)` computes without writing;
+   `normalizeMetadata`; the SQL `metadata` column receives it as-is as the full JSON value (never
+   wrapped as `{"metadata": ...}`); `await publisher.dryRun(path)` computes without writing;
    `await publisher.save(path)` writes `entries.json`, `letters.json`, `uniques.json` plus
    `query_v{N}.sql`/`.json` only for changed entries (chunks of 100).
 9. Error contract: `addLanguage` throws if name or canonical is already registered;

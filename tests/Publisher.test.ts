@@ -197,9 +197,7 @@ describe(Publisher, () => {
           metadata: { level: 5 },
         },
       ]);
-      expect(output.version.sql).toStrictEqual(
-        expect.stringContaining('\'{"metadata":{"level":5}}\''),
-      );
+      expect(output.version.sql).toStrictEqual(expect.stringContaining("'{\"level\":5}'"));
       expect(output.version.sql).toStrictEqual(expect.stringContaining("JSON_PATCH"));
     });
 
@@ -284,9 +282,7 @@ describe(Publisher, () => {
       const second = await secondPublisher.dryRun(tmpDir);
 
       expect(second.version.needed).toBe(true);
-      expect(second.version.sql).toStrictEqual(
-        expect.stringContaining('\'{"metadata":{"level":5}}\''),
-      );
+      expect(second.version.sql).toStrictEqual(expect.stringContaining("'{\"level\":5}'"));
     });
   });
 
